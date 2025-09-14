@@ -626,20 +626,10 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
           <NavSection title={isMinimized ? "" : "Main"} icon={<Home className="h-4 w-4" />}>
             <NavItem to="/dashboard" icon={<Home className="h-5 w-5" />} label={isMinimized ? "" : "Dashboard"} />
             <NavItem to="/challenges" icon={<Flag className="h-5 w-5" />} label={isMinimized ? "" : "Challenges"} badge={isMinimized ? undefined : 3} />
-            <NavItem to="/skill-paths" icon={<BookOpen className="h-5 w-5" />} label={isMinimized ? "" : "Skill Paths"} />
+            <NavItem to="/skill-paths" icon={<Award className="h-5 w-5" />} label={isMinimized ? "" : "Certifications"} />
             <NavItem to="/labs" icon={<Flask className="h-5 w-5" />} label={isMinimized ? "" : "Labs"} isNew={!isMinimized} />
             <NavItem to="/threat-intelligence" icon={<Shield className="h-5 w-5" />} label={isMinimized ? "" : "Threat Intel"} isNew={!isMinimized} />
             <NavItem to="/leaderboard" icon={<Trophy className="h-5 w-5" />} label={isMinimized ? "" : "Leaderboard"} />
-            <NavItem
-              to="/operations/arena"
-              icon={
-                <span className="inline-block w-6 h-6 bg-gradient-to-br from-red-500 to-blue-500 rounded-full flex items-center justify-center font-extrabold text-white text-lg shadow-md border-2 border-white">
-                  VS
-                </span>
-              }
-              label={isMinimized ? "" : "Red vs Blue"}
-              isNew={!isMinimized}
-            />
           </NavSection>
           
           {/* Operations section */}
@@ -659,7 +649,7 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
             <NavSection title={isMinimized ? "" : "Admin Panel"} icon={<Settings className="h-4 w-4" />}>
               <NavItem to="/admin" icon={<Shield className="h-5 w-5" />} label={isMinimized ? "" : "Dashboard"} />
               <NavItem to="/admin/labs" icon={<Flask className="h-5 w-5" />} label={isMinimized ? "" : "Labs Management"} />
-              <NavItem to="/admin/skill-paths" icon={<BookOpen className="h-5 w-5" />} label={isMinimized ? "" : "Skill Paths"} isNew={!isMinimized} />
+              <NavItem to="/admin/skill-paths" icon={<Award className="h-5 w-5" />} label={isMinimized ? "" : "Certifications"} isNew={!isMinimized} />
               <NavItem to="/admin/operations" icon={<Monitor className="h-5 w-5" />} label={isMinimized ? "" : "Operations"} />
               <NavItem to="/admin/laboperations" icon={<Monitor className="h-5 w-5" />} label={isMinimized ? "" : "LabOperations"} />
             </NavSection>

@@ -2,10 +2,9 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ArrowLeft, BookOpen, Clock, Trophy, Target, Users, Play,
-  CheckCircle, Lock, Star, Award, ChevronDown, ChevronRight,
-  Lightbulb, Flag, Monitor, Shield, Terminal, Hash, Eye,
-  Download, Settings, AlertTriangle, TrendingUp, BarChart3
+  ArrowLeft, Clock, Trophy, Target, Users, Play,
+  CheckCircle, Lock, Award, ChevronDown, ChevronRight,
+  Lightbulb, Flag, Monitor, Shield, Terminal, AlertTriangle, BarChart3
 } from 'lucide-react';
 import { getSkillPath, enrollInSkillPath } from '../../lib/api';
 import { SkillPath, SkillPathItem } from '../../lib/types';
@@ -151,7 +150,7 @@ const SkillPathPage = () => {
               <div className="lg:col-span-2">
                 <div className="flex items-start gap-4 mb-6">
                   <div className="w-16 h-16 rounded-xl bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                    <BookOpen className="h-8 w-8 text-red-400" />
+                    <Award className="h-8 w-8 text-red-400" />
                   </div>
                   <div className="flex-1">
                     <h1 className="text-4xl font-bold text-white mb-4">{skillPath.title}</h1>

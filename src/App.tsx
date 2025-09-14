@@ -21,7 +21,7 @@ import ChallengePage from './pages/challenges/ChallengePage';
 import LabsPage from './pages/labs/LabsPage';
 import LabPage from './pages/labs/LabPage';
 import ThreatIntelligencePage from './pages/dashboard/ThreatIntelligencePage';
-import SkillPathsPage from './pages/skillpaths/SkillPathsPage';
+import CertificationsPage from './pages/certifications/CertificationsPage';
 import SkillPathPage from './pages/skillpaths/SkillPathPage';
 
 // Team Pages
@@ -94,7 +94,7 @@ function App() {
               <Route path="/challenges/:id" element={<ChallengePage />} />
               <Route path="/labs" element={<LabsPage />} />
               <Route path="/labs/:id" element={<LabPage />} />
-              <Route path="/skill-paths" element={<SkillPathsPage />} />
+              <Route path="/skill-paths" element={<CertificationsPage />} />
               <Route path="/skill-paths/:id" element={<SkillPathPage />} />
               <Route path="/leaderboard" element={<LeaderboardPage />} />
               <Route path="/threat-intelligence" element={<ThreatIntelligencePage />} />
