@@ -1,0 +1,274 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  
+  body {
+    @apply text-gray-200 font-sans;
+    background-color: #0A030F;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans font-bold;
+  }
+
+  h1 {
+    @apply text-3xl md:text-4xl;
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-950;
+  }
+
+  .btn-primary {
+    @apply btn bg-red-600 hover:bg-red-700 text-white focus:ring-red-500;
+  }
+  .btn-secondary {
+    @apply btn bg-purple-600 hover:bg-purple-700 text-white focus:ring-purple-500;
+  }
+  .btn-outline {
+    @apply btn border border-red-500/30 hover:bg-red-500/10 text-red-400 hover:text-white focus:ring-red-500;
+  }
+
+  .card {
+    @apply bg-slate-900 rounded-lg overflow-hidden border border-slate-700 hover:border-red-500/30 transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply hover:transform hover:-translate-y-1 hover:shadow-md;
+  }
+
+  .form-input {
+    @apply w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-md text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors duration-200;
+  }
+
+  .form-label {
+    @apply block text-sm font-medium text-gray-300 mb-1;
+  }
+
+  .terminal-text {
+    @apply font-mono text-green-400;
+  }
+
+  .nav-link {
+    @apply flex items-center px-3 py-2 text-gray-300 rounded-md transition-colors duration-200 hover:bg-slate-800/50 hover:text-white;
+  }
+
+  .nav-link-active {
+    @apply bg-gradient-to-r from-red-500/20 to-purple-600/20 text-red-400 border-l-4 border-red-500 font-medium;
+  }
+
+  .sidebar {
+    @apply bg-gradient-to-b from-black via-slate-900/90 to-black border-r border-red-500/20;
+    @apply text-gray-200;
+  }
+
+  .sidebar-header {
+    @apply px-6 py-4 bg-slate-900/50 border-b border-red-500/20;
+    @apply text-white font-bold text-xl;
+  }
+
+  .sidebar-footer {
+    @apply px-6 py-4 bg-slate-900/30 border-t border-red-500/20;
+    @apply text-gray-400 text-xs;
+  }
+
+  .glow-effect {
+    @apply shadow-glow;
+  }
+
+  .cyber-border {
+    @apply relative before:absolute before:inset-0 before:p-[1px] before:rounded-lg before:bg-gradient-to-r before:from-red-500 before:via-red-600 before:to-purple-600 before:mask-border;
+  }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(239, 68, 68, 0.3) transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(239, 68, 68, 0.3);
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(239, 68, 68, 0.5);
+  }
+}
+
+@layer utilities {
+  .mask-border {
+    mask: linear-gradient(#fff 0 0) content-box, 
+          linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
+  
+  .text-glow {
+    text-shadow: 0 0 8px rgba(239, 68, 68, 0.8);
+  }
+  
+  .text-glow-purple {
+    text-shadow: 0 0 8px rgba(147, 51, 234, 0.8);
+  }
+
+  .glass-effect {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(239, 68, 68, 0.1);
+  }
+
+  .gradient-border {
+    position: relative;
+    background: linear-gradient(45deg, transparent, rgba(239, 68, 68, 0.1), transparent);
+    border: 1px solid transparent;
+  }
+
+  .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    background: linear-gradient(45deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.8), rgba(147, 51, 234, 0.2));
+    border-radius: inherit;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
+}
+
+/* Markdown Rendering Styles */
+.markdown-content {
+  @apply text-gray-300;
+}
+
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3,
+.markdown-content h4,
+.markdown-content h5,
+.markdown-content h6 {
+  @apply text-white font-bold;
+}
+
+.markdown-content h1 {
+  @apply text-3xl mb-6 mt-8 first:mt-0;
+}
+
+.markdown-content h2 {
+  @apply text-2xl mb-4 mt-6 first:mt-0;
+}
+
+.markdown-content h3 {
+  @apply text-xl mb-3 mt-5 first:mt-0;
+}
+
+.markdown-content p {
+  @apply mb-4 leading-relaxed;
+}
+
+.markdown-content ul,
+.markdown-content ol {
+  @apply mb-4 pl-6;
+}
+
+.markdown-content li {
+  @apply mb-2;
+}
+
+.markdown-content blockquote {
+  @apply border-l-4 border-red-500 bg-red-500/5 pl-4 py-2 mb-4 italic;
+}
+
+.markdown-content code {
+  @apply bg-slate-800 px-2 py-1 rounded text-red-400 font-mono text-sm;
+}
+
+.markdown-content pre {
+  @apply bg-slate-900 text-green-400 p-4 rounded-lg mb-4 overflow-x-auto border border-slate-700;
+}
+
+.markdown-content pre code {
+  @apply bg-transparent px-0 py-0 text-green-400;
+}
+
+.markdown-content img {
+  @apply max-w-full h-auto rounded-lg shadow-lg border border-slate-700;
+}
+
+.markdown-content a {
+  @apply text-red-400 hover:text-red-300 underline;
+}
+
+.markdown-content table {
+  @apply w-full border-collapse border border-slate-700 mb-4;
+}
+
+.markdown-content th,
+.markdown-content td {
+  @apply border border-slate-700 px-4 py-2;
+}
+
+.markdown-content th {
+  @apply bg-slate-800 font-semibold text-white;
+}
+
+.markdown-content td {
+  @apply text-gray-300;
+}
+
+/* Horizontal Rule Styling */
+.markdown-content hr {
+  @apply my-6 border-0 h-px bg-gradient-to-r from-transparent via-gray-500 to-transparent;
+}
+
+/* Strong emphasis for horizontal rules with multiple dashes */
+.markdown-content hr.thick {
+  @apply h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent;
+}
+
+/* Terminal colors for code blocks */
+:root {
+  --terminal-bg: #0f172a;
+  --terminal-green: #4ade80;
+}
+
+.bg-terminal-bg {
+  background-color: var(--terminal-bg);
+}
+
+.text-terminal-green {
+  color: var(--terminal-green);
+}
+
+/* Additional utility classes for the dashboard */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}

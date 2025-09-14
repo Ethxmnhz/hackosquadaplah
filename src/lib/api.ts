@@ -1,0 +1,1335 @@
+import { createClient } from '@supabase/supabase-js';
+import { ChallengeFormData } from './validation';
+import { Lab, LabQuestion } from './types';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-supabase-url.supabase.co';
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
+
+// Initialize the Supabase client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export const createChallenge = async (data: ChallengeFormData) => {
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('User not authenticated');
+
+    // Calculate total points from all task questions
+    const totalPoints = data.tasks?.reduce((sum, task) => 
+      sum + task.questions.reduce((qSum, q) => qSum + q.points, 0), 0
+    ) || data.questions?.reduce((sum, q) => sum + q.points, 0) || 0;
+
+    // First create the challenge with enhanced structure
+    const { data: challenge, error: challengeError } = await supabase
+      .from('challenges')
+      .insert({
+        title: data.title,
+        description: data.description,
+        challenge_type: data.challenge_type,
+        difficulty: data.difficulty,
+        points: totalPoints,
+        status: data.status || 'pending',
+        icon_url: data.icon_url || null,
+        short_description: data.short_description || data.description?.substring(0, 200) || null,
+        scenario: data.scenario || null,
+        learning_objectives: data.learning_objectives || null,
+        tools_required: data.tools_required || null,
+        prerequisites: data.prerequisites || null,
+        target_audience: data.target_audience || null,
+        estimated_time: data.estimated_time || 30,
+        author_notes: `${data.author_notes || ''}${data.lab_environment ? `\n\n=== LAB ENVIRONMENT ===\n${JSON.stringify(data.lab_environment)}` : ''}${data.tasks ? `\n\n=== ENHANCED TASKS STRUCTURE ===\n${JSON.stringify(data.tasks)}` : ''}`,
+        created_by: user.id
+      })
+      .select()
+      .single();
+
+    if (challengeError) throw challengeError;
+
+    // Create backward compatible questions if provided
+    if (data.questions && data.questions.length > 0) {
+      const { error: questionsError } = await supabase
+        .from('challenge_questions')
+        .insert(
+          data.questions.map((q, index) => ({
+            challenge_id: challenge.id,
+            question_number: index + 1,
+            question: q.question,
+            description: q.description || null,
+            flag: q.flag,
+            points: Math.min(Math.max(Math.round(q.points / 10), 1), 5), // Convert to 1-5 scale for database
+            hints: q.hints || [],
+            solution_explanation: q.solution_explanation || null,
+            difficulty_rating: Math.min(Math.max(q.difficulty_rating || 3, 1), 5) // Ensure rating is 1-5
+          }))
+        );
+
+      if (questionsError) throw questionsError;
+    }
+
+    return { success: true, data: challenge };
+  } catch (error) {
+    console.error('Error creating challenge:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to create challenge' };
+  }
+};
+
+export const submitChallengeAnswer = async (challengeId: string, questionId: string, answer: string) => {
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('User not authenticated');
+
+    console.log('=== ANSWER SUBMISSION START ===');
+    console.log('Submitting answer for:', { challengeId, questionId, answer });
+
+    // Get the challenge to check if it uses enhanced tasks structure
+    const { data: challenge } = await supabase
+      .from('challenges')
+      .select('author_notes')
+      .eq('id', challengeId)
+      .single();
+
+    let isEnhancedTask = false;
+    let taskQuestion = null;
+    let enhancedTasks = null;
+
+    // Check if this is an enhanced task question
+    if (challenge?.author_notes?.includes('=== ENHANCED TASKS STRUCTURE ===') && questionId.includes('-')) {
+      isEnhancedTask = true;
+      console.log('✓ Detected enhanced task question');
+      
+      try {
+        const tasksSection = challenge.author_notes.split('=== ENHANCED TASKS STRUCTURE ===')[1];
+        if (tasksSection) {
+          enhancedTasks = JSON.parse(tasksSection.trim());
+          console.log('✓ Parsed enhanced tasks:', enhancedTasks);
+          
+          // Find the question in the enhanced structure
+          for (const task of enhancedTasks) {
+            const question = task.questions?.find(q => q.id === questionId);
+            if (question) {
+              taskQuestion = {
+                ...question,
+                task_title: task.title
+              };
+              console.log('✓ Found task question:', taskQuestion);
+              break;
+            }
+          }
+        }
+      } catch (parseError) {
+        console.error('✗ Failed to parse enhanced tasks:', parseError);
+        isEnhancedTask = false;
+      }
+    }
+
+    if (isEnhancedTask && taskQuestion) {
+      console.log('Processing enhanced task question:', taskQuestion);
+      
+      // Get all questions in order from the enhanced structure first
+      const allQuestions = enhancedTasks?.flatMap(task => 
+        task.questions?.map(q => q.id) || []
+      ) || [];
+      console.log('📋 All questions in order:', allQuestions);
+
+      // Find the index of the current question
+      const questionIndex = allQuestions.indexOf(questionId);
+      console.log(`📍 Question "${questionId}" is at index:`, questionIndex);
+      
+      if (questionIndex === -1) {
+        console.error('✗ Question not found in challenge structure');
+        throw new Error('Question not found in challenge structure');
+      }
+
+      // Check existing answers for this challenge
+      const { data: existingAnswers, error: fetchError } = await supabase
+        .from('user_points')
+        .select('id, points, created_at')
+        .eq('user_id', user.id)
+        .eq('source_type', 'challenge')
+        .eq('source_id', challengeId)
+        .order('created_at', { ascending: true });
+
+      if (fetchError) {
+        console.error('✗ Error fetching existing answers:', fetchError);
+        throw fetchError;
+      }
+
+      console.log('📊 Existing answers for challenge:', existingAnswers);
+
+      // Clean up duplicates and check if already answered
+      let cleanedAnswers = existingAnswers || [];
+      const maxAnswers = allQuestions.length;
+      
+      if (cleanedAnswers.length > maxAnswers) {
+        console.log('🧹 Cleaning up duplicate entries...');
+        const duplicates = cleanedAnswers.slice(maxAnswers);
+        
+        for (const duplicate of duplicates) {
+          await supabase
+            .from('user_points')
+            .delete()
+            .eq('id', duplicate.id);
+        }
+        
+        cleanedAnswers = cleanedAnswers.slice(0, maxAnswers);
+        console.log('✅ After cleanup, remaining answers:', cleanedAnswers.length);
+      }
+
+      // Check if this specific question has already been answered
+      const alreadyAnswered = cleanedAnswers.length > questionIndex;
+      
+      if (alreadyAnswered) {
+        console.log('⚠️ Question already answered');
+        
+        // Return with current progress info for UI update
+        const answeredQuestionIds = allQuestions.slice(0, cleanedAnswers.length);
+        return {
+          success: true,
+          data: {
+            isCorrect: true,
+            pointsEarned: 0,
+            alreadyAnswered: true,
+            progress: {
+              answered: cleanedAnswers.length,
+              total: allQuestions.length,
+              answeredQuestions: new Set(answeredQuestionIds)
+            }
+          }
+        };
+      }
+
+      // Check if user is trying to answer questions out of order
+      const expectedNextIndex = cleanedAnswers.length;
+      if (questionIndex !== expectedNextIndex) {
+        console.log('⚠️ Question answered out of order:', { questionIndex, expectedNextIndex });
+        return {
+          success: false,
+          error: `Please answer questions in order. Expected question at index ${expectedNextIndex}`
+        };
+      }
+
+      // Check if the answer is correct
+  const isCorrect = answer.trim().toLowerCase() === taskQuestion.expected_answer.trim().toLowerCase();
+      
+      const pointsEarned = isCorrect ? taskQuestion.points : 0;
+      console.log('✅ Answer check:', { 
+        isCorrect, 
+        pointsEarned, 
+        expected: taskQuestion.expected_answer, 
+        provided: answer,
+        caseSensitive: taskQuestion.case_sensitive 
+      });
+
+      if (pointsEarned > 0) {
+        try {
+          console.log('💾 Inserting points into database...');
+          
+          // Insert points using the challenge ID as source_id
+          const { data: insertResult, error: insertError } = await supabase
+            .from('user_points')
+            .insert({
+              user_id: user.id,
+              points: pointsEarned,
+              source_type: 'challenge',
+              source_id: challengeId,
+              earned_at: new Date().toISOString()
+            })
+            .select();
+
+          if (insertError) {
+            console.error('✗ Insert error:', insertError);
+            throw insertError;
+          }
+
+          console.log('✅ Points inserted successfully:', insertResult);
+
+          // Update user stats
+          try {
+            await supabase.rpc('update_user_stats_manual', { target_user_id: user.id });
+          } catch (rpcError) {
+            console.warn('⚠️ RPC update failed:', rpcError);
+          }
+
+          // Calculate updated progress
+          const newAnsweredCount = cleanedAnswers.length + 1;
+          const answeredQuestionIds = allQuestions.slice(0, newAnsweredCount);
+          
+          console.log('🏁 Progress check:', { 
+            newAnsweredCount, 
+            totalQuestions: allQuestions.length,
+            answeredQuestionIds 
+          });
+
+          // Check if all questions are now answered
+          const allAnswered = newAnsweredCount >= allQuestions.length;
+          if (allAnswered) {
+            console.log('🎉 All questions answered! Marking challenge as completed...');
+            
+            const totalPointsFromStructure = enhancedTasks?.reduce((sum, task) => 
+              sum + task.questions.reduce((qSum, q) => qSum + q.points, 0), 0
+            ) || 0;
+
+            await supabase
+              .from('challenge_completions')
+              .insert({
+                challenge_id: challengeId,
+                user_id: user.id,
+                points_earned: totalPointsFromStructure,
+                completed_at: new Date().toISOString()
+              });
+
+            console.log('✅ Challenge marked as completed');
+          }
+
+          console.log('=== ANSWER SUBMISSION END ===');
+          
+          // Return success with updated progress data for UI
+          return {
+            success: true,
+            data: {
+              isCorrect,
+              pointsEarned,
+              alreadyAnswered: false,
+              progress: {
+                answered: newAnsweredCount,
+                total: allQuestions.length,
+                answeredQuestions: new Set(answeredQuestionIds),
+                completed: allAnswered
+              }
+            }
+          };
+        } catch (pointsError) {
+          console.error('✗ Error adding points:', pointsError);
+          throw pointsError;
+        }
+      } else {
+        console.log('❌ Answer was incorrect, no points awarded');
+        
+        // Return with current progress for UI (no change in progress)
+        const answeredQuestionIds = allQuestions.slice(0, cleanedAnswers.length);
+        return {
+          success: true,
+          data: {
+            isCorrect: false,
+            pointsEarned: 0,
+            alreadyAnswered: false,
+            progress: {
+              answered: cleanedAnswers.length,
+              total: allQuestions.length,
+              answeredQuestions: new Set(answeredQuestionIds),
+              completed: false
+            }
+          }
+        };
+      }
+    } else {
+      // Handle legacy challenge questions with existing logic
+      console.log('Processing legacy challenge question...');
+      
+      // Get the question from challenge_questions table
+      const { data: question, error: questionError } = await supabase
+        .from('challenge_questions')
+        .select('*')
+        .eq('id', questionId)
+        .single();
+
+      if (questionError) throw questionError;
+
+      // Check if answer is correct
+  const isCorrect = answer.trim().toLowerCase() === question.flag.trim().toLowerCase();
+
+      const pointsEarned = isCorrect ? question.points : 0;
+
+      if (pointsEarned > 0) {
+        // Add points for correct answer
+        await supabase
+          .from('user_points')
+          .insert({
+            user_id: user.id,
+            points: pointsEarned,
+            source_type: 'challenge', 
+            source_id: questionId,
+            earned_at: new Date().toISOString()
+          });
+
+        // Update user stats
+        try {
+          await supabase.rpc('update_user_stats_manual', { target_user_id: user.id });
+        } catch (rpcError) {
+          console.warn('⚠️ RPC update failed:', rpcError);
+        }
+      }
+      
+      return {
+        success: true,
+        data: {
+          isCorrect,
+          pointsEarned,
+          alreadyAnswered: false
+        }
+      };
+    }
+  } catch (error) {
+    console.error('✗ Error submitting answer:', error);
+    return { success: false, error: `Failed to submit answer: ${error instanceof Error ? error.message : 'Unknown error'}` };
+  }
+};
+
+export const getChallenge = async (id: string) => {
+  try {
+    const { data: challenge, error } = await supabase
+      .from('challenges')
+      .select(`
+        *,
+        questions:challenge_questions(*)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    // Parse lab environment from author_notes if available
+    let labEnvironment = { enabled: false };
+    if (challenge.author_notes?.includes('=== LAB ENVIRONMENT ===')) {
+      try {
+        const labSection = challenge.author_notes.split('=== LAB ENVIRONMENT ===')[1]?.split('=== ENHANCED TASKS STRUCTURE ===')[0];
+        if (labSection) {
+          labEnvironment = JSON.parse(labSection.trim());
+        }
+      } catch (parseError) {
+        console.warn('Failed to parse lab environment from author_notes:', parseError);
+      }
+    }
+
+    // Parse enhanced tasks structure from author_notes if available
+    let enhancedTasks = null;
+    let isEnhancedChallenge = false;
+    if (challenge.author_notes?.includes('=== ENHANCED TASKS STRUCTURE ===')) {
+      try {
+        const tasksSection = challenge.author_notes.split('=== ENHANCED TASKS STRUCTURE ===')[1];
+        if (tasksSection) {
+          enhancedTasks = JSON.parse(tasksSection.trim());
+          isEnhancedChallenge = true;
+        }
+      } catch (parseError) {
+        console.warn('Failed to parse enhanced tasks from author_notes:', parseError);
+      }
+    }
+
+    let enhancedChallenge = { 
+      ...challenge,
+      lab_environment: labEnvironment
+    };
+    
+    if (enhancedTasks && Array.isArray(enhancedTasks) && enhancedTasks.length > 0) {
+      // Use enhanced tasks structure from stored data
+      enhancedChallenge.tasks = enhancedTasks.map((task, taskIndex) => ({
+        ...task,
+        id: task.id || `task-${taskIndex}`,
+        questions: task.questions?.map((q, qIndex) => ({
+          ...q,
+          id: q.id || `${task.id || taskIndex}-${qIndex}`
+        })) || []
+      }));
+    } else if (challenge.questions && challenge.questions.length > 0) {
+      // Convert old questions format to tasks format
+      enhancedChallenge.tasks = [{
+        id: 'legacy-task-1',
+        title: 'Challenge Questions',
+        description: 'Complete all questions to finish this challenge',
+        explanation: challenge.description || '',
+        questions: challenge.questions.map(q => ({
+          id: q.id,
+          question_text: q.question,
+          expected_answer: q.flag,
+          answer_validation: 'exact',
+          case_sensitive: false,
+          points: q.points,
+          hints: (q.hints || []).map(hint => ({ text: hint, unlock_after_attempts: 2 })),
+          question_type: 'text' as const,
+          solution_explanation: q.solution_explanation
+        })),
+        attachments: []
+      }];
+    } else {
+      // No questions or tasks found
+      enhancedChallenge.tasks = [];
+    }
+
+    // Check if user has completed this challenge and get answered questions
+    const user = (await supabase.auth.getUser()).data.user;
+    if (user) {
+      const { data: completion } = await supabase
+        .from('challenge_completions')
+        .select('*')
+        .eq('challenge_id', id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      let answeredQuestions = new Set<string>();
+
+      if (isEnhancedChallenge) {
+        console.log('=== PROGRESS TRACKING START ===');
+        
+        // Get all question IDs in order FIRST
+        const allQuestionIds = enhancedChallenge.tasks?.flatMap(task => 
+          task.questions?.map(q => q.id) || []
+        ) || [];
+        console.log('📋 All question IDs in order:', allQuestionIds);
+        
+        // For enhanced challenges, get user points for this challenge and count them
+        const { data: userAnswers } = await supabase
+          .from('user_points')
+          .select('id, points, created_at')
+          .eq('user_id', user.id)
+          .eq('source_type', 'challenge')
+          .eq('source_id', id)
+          .order('created_at', { ascending: true });
+
+        console.log('📊 User answers from database:', userAnswers);
+
+        // Clean up duplicates if they exist
+        const maxAnswers = allQuestionIds.length;
+        let cleanedAnswers = userAnswers || [];
+        
+        if (cleanedAnswers.length > maxAnswers) {
+          console.log('🧹 Found duplicate entries, cleaning up...');
+          const duplicates = cleanedAnswers.slice(maxAnswers);
+          
+          // Delete duplicates
+          for (const duplicate of duplicates) {
+            await supabase
+              .from('user_points')
+              .delete()
+              .eq('id', duplicate.id);
+          }
+          
+          cleanedAnswers = cleanedAnswers.slice(0, maxAnswers);
+          console.log('✅ Duplicates cleaned, remaining answers:', cleanedAnswers.length);
+        }
+
+        // Mark the first N questions as answered, where N is the number of points entries
+        const answeredCount = Math.min(cleanedAnswers.length, maxAnswers);
+        console.log('📊 Questions answered count (after cleanup):', answeredCount);
+        
+        const answeredQuestionsList = allQuestionIds.slice(0, answeredCount);
+        answeredQuestions = new Set(answeredQuestionsList);
+
+        console.log('✅ Enhanced challenge progress calculated:', { 
+          answeredCount, 
+          totalQuestions: allQuestionIds.length, 
+          answeredQuestions: Array.from(answeredQuestions),
+          progress: `${answeredCount}/${allQuestionIds.length}`
+        });
+        console.log('=== PROGRESS TRACKING END ===');
+      } else {
+        // For legacy challenges, get user points with challenge source type
+        const { data: userAnswers } = await supabase
+          .from('user_points')
+          .select('source_id, points, earned_at')
+          .eq('user_id', user.id)
+          .eq('source_type', 'challenge');
+
+        // Filter answers that belong to this challenge's questions
+        const allQuestionIds = enhancedChallenge.tasks?.flatMap(task => 
+          task.questions?.map(q => q.id) || []
+        ) || [];
+        
+        answeredQuestions = new Set(
+          userAnswers?.filter(a => allQuestionIds.includes(a.source_id))?.map(a => a.source_id) || []
+        );
+      }
+
+      return { 
+        success: true, 
+        data: {
+          ...enhancedChallenge,
+          completed: !!completion,
+          completion_data: completion,
+          answered_questions: answeredQuestions,
+          is_enhanced_challenge: isEnhancedChallenge
+        }
+      };
+    }
+
+    return { success: true, data: { ...enhancedChallenge, is_enhanced_challenge: isEnhancedChallenge } };
+  } catch (error) {
+    console.error('Error loading challenge:', error);
+    return { success: false, error: 'Failed to load challenge' };
+  }
+};
+
+export const loadChallenges = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('challenges')
+      .select(`
+        *,
+        questions:challenge_questions(*)
+      `)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Process challenges to ensure they have proper task structure
+    const processedChallenges = data?.map(challenge => {
+      let enhancedChallenge = { ...challenge };
+      
+      if (challenge.tasks && Array.isArray(challenge.tasks) && challenge.tasks.length > 0) {
+        // Already has enhanced tasks structure
+        enhancedChallenge.tasks = challenge.tasks;
+      } else if (challenge.questions && challenge.questions.length > 0) {
+        // Convert old questions format to tasks format for display
+        enhancedChallenge.tasks = [{
+          id: 'legacy-task-1',
+          title: 'Challenge Questions',
+          description: 'Complete all questions to finish this challenge',
+          questions: challenge.questions.map(q => ({
+            id: q.id,
+            question_text: q.question,
+            expected_answer: q.flag,
+            points: q.points
+          }))
+        }];
+      } else {
+        enhancedChallenge.tasks = [];
+      }
+
+      return enhancedChallenge;
+    }) || [];
+
+    // Get user's completed challenges
+    const user = (await supabase.auth.getUser()).data.user;
+    if (user) {
+      const { data: completions } = await supabase
+        .from('challenge_completions')
+        .select('challenge_id, completed_at, points_earned')
+        .eq('user_id', user.id);
+
+      // Mark completed challenges
+      const completedIds = new Set(completions?.map(c => c.challenge_id) || []);
+      const challengesWithCompletion = processedChallenges.map(challenge => ({
+        ...challenge,
+        completed: completedIds.has(challenge.id),
+        completion_data: completions?.find(c => c.challenge_id === challenge.id)
+      }));
+
+      return { success: true, data: challengesWithCompletion };
+    }
+
+    return { success: true, data: processedChallenges };
+  } catch (error) {
+    console.error('Error loading challenges:', error);
+    return { success: false, error: 'Failed to load challenges' };
+  }
+};
+
+export const submitChallenge = async (challengeId: string, answers: Record<string, string>) => {
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('User not authenticated');
+
+    // Get challenge questions and check answers
+    const { data: questions } = await supabase
+      .from('challenge_questions')
+      .select('*')
+      .eq('challenge_id', challengeId);
+
+    if (!questions) throw new Error('Challenge questions not found');
+
+    // Calculate score
+    let correctAnswers = 0;
+    let totalPoints = 0;
+
+    questions.forEach(question => {
+      if (answers[question.id]?.toLowerCase() === question.flag.toLowerCase()) {
+        correctAnswers++;
+        totalPoints += question.points;
+      }
+    });
+
+    // Record completion if at least one answer is correct
+    if (correctAnswers > 0) {
+      try {
+        const { error } = await supabase
+          .from('challenge_completions')
+          .insert({
+            challenge_id: challengeId,
+            user_id: user.id,
+            points_earned: totalPoints,
+            completed_at: new Date().toISOString()
+          });
+
+        if (error && error.code !== '23505') { // Ignore unique constraint violation
+          console.error('Error recording challenge completion:', error);
+        }
+      } catch (completionError) {
+        console.error('Error recording challenge completion:', completionError);
+        // Continue execution even if completion recording fails
+      }
+
+      // Add points for each correct answer
+      for (const question of questions) {
+        if (answers[question.id]?.toLowerCase() === question.flag.toLowerCase()) {
+          try {
+            await supabase
+              .from('user_points')
+              .insert({
+                user_id: user.id,
+                points: question.points,
+                source_type: 'challenge',
+                source_id: question.id,
+                earned_at: new Date().toISOString()
+              });
+          } catch (pointsError) {
+            console.error('Error adding points:', pointsError);
+            // Continue execution even if points addition fails
+          }
+        }
+      }
+
+      // Update user stats manually to avoid trigger issues
+      try {
+        await supabase.rpc('update_user_stats_manual', { target_user_id: user.id });
+      } catch (statsError) {
+        console.warn('Error updating user stats:', statsError);
+        // Continue execution even if stats update fails
+      }
+    }
+
+    return { 
+      success: true, 
+      data: {
+        correctAnswers,
+        total: questions.length,
+        score: totalPoints
+      }
+    };
+  } catch (error) {
+    console.error('Error submitting challenge:', error);
+    return { success: false, error: 'Failed to submit challenge' };
+  }
+};
+
+export const createLab = async (lab: Partial<Lab>, questions: Partial<LabQuestion>[], tags: string[]) => {
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('User not authenticated');
+
+    // Calculate total points from questions
+    const totalPoints = questions.reduce((sum, q) => sum + (q.points || 0), 0);
+
+    // Create the lab
+    const { data: newLab, error: labError } = await supabase
+      .from('labs')
+      .insert({
+        title: lab.title,
+        description: lab.description || '',
+        category: lab.category,
+        difficulty: lab.difficulty,
+        points: totalPoints,
+        estimated_time: lab.estimated_time,
+        short_intro: lab.short_intro,
+        learning_objectives: lab.learning_objectives || [],
+        attack_scenario: lab.attack_scenario,
+        lab_type: lab.lab_type,
+        docker_command: lab.docker_command,
+        vm_download_url: lab.vm_download_url,
+        external_link: lab.external_link,
+        setup_instructions: lab.setup_instructions,
+        thumbnail_url: lab.thumbnail_url,
+        suggested_tools: lab.suggested_tools || [],
+        pre_reading_links: lab.pre_reading_links || [],
+        created_by: user.id,
+        status: 'draft'
+      })
+      .select()
+      .single();
+
+    if (labError) throw labError;
+
+    // Create questions
+    if (questions.length > 0) {
+      const { error: questionsError } = await supabase
+        .from('lab_questions')
+        .insert(
+          questions.map((q, index) => ({
+            lab_id: newLab.id,
+            question_number: index + 1,
+            question: q.question,
+            description: q.description,
+            answer: q.answer,
+            points: q.points,
+            question_type: q.question_type,
+            hints: q.hints || [],
+            options: q.options || [],
+            code_template: q.code_template
+          }))
+        );
+
+      if (questionsError) throw questionsError;
+    }
+
+    // Add tags
+    if (tags.length > 0) {
+      const { error: tagsError } = await supabase
+        .from('lab_tags')
+        .insert(
+          tags.map(tagId => ({
+            lab_id: newLab.id,
+            tag_id: tagId
+          }))
+        );
+
+      if (tagsError) throw tagsError;
+    }
+
+    return { success: true, data: newLab };
+  } catch (error) {
+    console.error('Error creating lab:', error);
+    return { success: false, error: 'Failed to create lab' };
+  }
+};
+
+export const getLabs = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('labs')
+      .select(`
+        *,
+        tags:lab_tags(
+          tag:tags(*)
+        )
+      `)
+      .eq('status', 'published')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Get user's completed labs
+    const user = (await supabase.auth.getUser()).data.user;
+    if (user) {
+      const { data: completions } = await supabase
+        .from('lab_completions')
+        .select('*')
+        .eq('user_id', user.id);
+
+      // Process completions
+      const labsWithCompletion = data?.map(lab => {
+        const completion = completions?.find(c => c.lab_id === lab.id);
+        return {
+          ...lab,
+          completed: !!completion,
+          points_earned: completion?.points_earned || 0
+        };
+      });
+
+      return { success: true, data: labsWithCompletion };
+    }
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error loading labs:', error);
+    return { success: false, error: 'Failed to load labs' };
+  }
+};
+
+export const getLab = async (id: string) => {
+  try {
+    const { data: lab, error } = await supabase
+      .from('labs')
+      .select(`
+        *,
+        questions:lab_questions(*),
+        tags:lab_tags(
+          tag:tags(*)
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    // Check if user has completed this lab
+    const user = (await supabase.auth.getUser()).data.user;
+    if (user) {
+      const { data: completion } = await supabase
+        .from('lab_completions')
+        .select('*')
+        .eq('lab_id', id)
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      return {
+        success: true,
+        data: {
+          ...lab,
+          completed: !!completion,
+          points_earned: completion?.points_earned || 0
+        }
+      };
+    }
+
+    return { success: true, data: lab };
+  } catch (error) {
+    console.error('Error loading lab:', error);
+    return { success: false, error: 'Failed to load lab' };
+  }
+};
+
+export const submitLabAnswer = async (labId: string, questionId: string, answer: string) => {
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('User not authenticated');
+
+    // Get the question
+    const { data: question, error: questionError } = await supabase
+      .from('lab_questions')
+      .select('*')
+      .eq('id', questionId)
+      .single();
+
+    if (questionError) throw questionError;
+
+    // Check answer
+    const isCorrect = answer.toLowerCase() === question.answer.toLowerCase();
+    const pointsEarned = isCorrect ? question.points : 0;
+
+    if (pointsEarned > 0) {
+      try {
+        // Add points
+        await supabase
+          .from('user_points')
+          .insert({
+            user_id: user.id,
+            points: pointsEarned,
+            source_type: 'lab',
+            source_id: labId
+          });
+
+        // Update user stats manually to avoid trigger issues
+        await supabase.rpc('update_user_stats_manual', { target_user_id: user.id });
+      } catch (error) {
+        console.error('Error adding points:', error);
+        // Continue execution even if points addition fails
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        isCorrect,
+        pointsEarned
+      }
+    };
+  } catch (error) {
+    console.error('Error submitting lab answer:', error);
+    return { success: false, error: 'Failed to submit answer' };
+  }
+};
+
+export const submitLabAnswers = async (labId: string, answers: Record<string, string>) => {
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('User not authenticated');
+
+    // Get lab questions and check answers
+    const { data: questions } = await supabase
+      .from('lab_questions')
+      .select('*')
+      .eq('lab_id', labId);
+
+    if (!questions) throw new Error('Lab questions not found');
+
+    // Calculate score
+    let correctAnswers = 0;
+    let totalPoints = 0;
+
+    questions.forEach(question => {
+      if (answers[question.id]?.toLowerCase() === question.answer.toLowerCase()) {
+        correctAnswers++;
+        totalPoints += question.points;
+      }
+    });
+
+    // Record completion if at least one answer is correct
+    if (correctAnswers > 0) {
+      try {
+        const { error } = await supabase
+          .from('lab_completions')
+          .insert({
+            lab_id: labId,
+            user_id: user.id,
+            points_earned: totalPoints
+          });
+
+        if (error && error.code !== '23505') { // Ignore unique constraint violation
+          console.error('Error recording lab completion:', error);
+        }
+      } catch (error) {
+        console.error('Error recording lab completion:', error);
+        // Continue execution even if completion recording fails
+      }
+
+      // Add points
+      try {
+        await supabase
+          .from('user_points')
+          .insert({
+            user_id: user.id,
+            points: totalPoints,
+            source_type: 'lab',
+            source_id: labId
+          });
+
+        // Update user stats manually to avoid trigger issues
+        await supabase.rpc('update_user_stats_manual', { target_user_id: user.id });
+      } catch (error) {
+        console.error('Error adding points:', error);
+        // Continue execution even if points addition fails
+      }
+    }
+
+    return {
+      success: true,
+      data: {
+        correctAnswers,
+        total: questions.length,
+        points_earned: totalPoints
+      }
+    };
+  } catch (error) {
+    console.error('Error submitting lab answers:', error);
+    return { success: false, error: 'Failed to submit lab answers' };
+  }
+};
+
+export const joinLab = async (labId: string) => {
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('User not authenticated');
+
+    // Get lab details
+    const { data: lab } = await supabase
+      .from('labs')
+      .select('estimated_time')
+      .eq('id', labId)
+      .single();
+
+    if (!lab) throw new Error('Lab not found');
+
+    // Join lab
+    const { data, error } = await supabase
+      .from('lab_participants')
+      .insert({
+        lab_id: labId,
+        user_id: user.id,
+        time_remaining: lab.estimated_time * 60 // Convert minutes to seconds
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error joining lab:', error);
+    return { success: false, error: 'Failed to join lab' };
+  }
+};
+
+export const updateLabTime = async (labId: string, timeRemaining: number) => {
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) throw new Error('User not authenticated');
+
+    const { error } = await supabase
+      .from('lab_participants')
+      .update({ time_remaining: timeRemaining })
+      .eq('lab_id', labId)
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating lab time:', error);
+    return { success: false, error: 'Failed to update lab time' };
+  }
+};
+
+// Skill Paths API
+export const getSkillPaths = async (options?: {
+  published_only?: boolean;
+  category?: string;
+  difficulty?: string;
+  limit?: number;
+  offset?: number;
+}) => {
+  try {
+    let query = supabase
+      .from('skill_paths')
+      .select(`
+        *,
+        skill_path_items(*)
+      `);
+
+    if (options?.published_only) {
+      query = query.eq('is_published', true);
+    }
+    if (options?.category) {
+      query = query.eq('category', options.category);
+    }
+    if (options?.difficulty) {
+      query = query.eq('difficulty', options.difficulty);
+    }
+    if (options?.limit) {
+      query = query.limit(options.limit);
+    }
+    if (options?.offset) {
+      query = query.range(options.offset, options.offset + (options.limit || 10) - 1);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) throw error;
+    
+    // Manually fetch challenges and labs for each skill path
+    const skillPathsWithItems = await Promise.all(
+      (data || []).map(async (skillPath) => {
+        const pathItems = skillPath.skill_path_items || [];
+        
+        // Fetch challenges and labs separately
+        const itemsWithContent = await Promise.all(
+          pathItems.map(async (item) => {
+            let content = null;
+            
+            if (item.item_type === 'challenge') {
+              const { data: challenge } = await supabase
+                .from('challenges')
+                .select('*')
+                .eq('id', item.item_id)
+                .single();
+              content = { challenge };
+            } else if (item.item_type === 'lab') {
+              const { data: lab } = await supabase
+                .from('labs')
+                .select('*')
+                .eq('id', item.item_id)
+                .single();
+              content = { lab };
+            }
+            
+            return { ...item, ...content };
+          })
+        );
+        
+        return {
+          ...skillPath,
+          path_items: itemsWithContent
+        };
+      })
+    );
+
+    // Get user progress if authenticated
+    const user = (await supabase.auth.getUser()).data.user;
+    if (user) {
+      const { data: progressData } = await supabase
+        .from('skill_path_progress')
+        .select('*')
+        .eq('user_id', user.id);
+
+      const skillPathsWithProgress = skillPathsWithItems.map(skillPath => {
+        const progress = progressData?.find(p => p.skill_path_id === skillPath.id);
+        return {
+          ...skillPath,
+          user_progress: progress ? [progress] : [],
+          enrolled_count: 0 // TODO: Add actual enrolled count
+        };
+      });
+
+      return { success: true, data: skillPathsWithProgress };
+    }
+
+    return { success: true, data: skillPathsWithItems.map(sp => ({ ...sp, enrolled_count: 0 })) };
+  } catch (error) {
+    console.error('Error fetching skill paths:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getSkillPath = async (id: string) => {
+  try {
+    const { data: skillPath, error } = await supabase
+      .from('skill_paths')
+      .select(`
+        *,
+        skill_path_items(*)
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+    
+    // Manually fetch challenges and labs for the skill path
+    const pathItems = skillPath.skill_path_items || [];
+    
+    const itemsWithContent = await Promise.all(
+      pathItems.map(async (item) => {
+        let content = null;
+        
+        if (item.item_type === 'challenge') {
+          const { data: challenge } = await supabase
+            .from('challenges')
+            .select('*')
+            .eq('id', item.item_id)
+            .single();
+          content = { challenge };
+        } else if (item.item_type === 'lab') {
+          const { data: lab } = await supabase
+            .from('labs')
+            .select('*')
+            .eq('id', item.item_id)
+            .single();
+          content = { lab };
+        }
+        
+        return { ...item, ...content };
+      })
+    );
+
+    // Get user progress if authenticated
+    const user = (await supabase.auth.getUser()).data.user;
+    let userProgress = null;
+    let itemProgress = [];
+
+    if (user) {
+      const { data: progress } = await supabase
+        .from('skill_path_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('skill_path_id', id)
+        .single();
+
+      const { data: itemProgressData } = await supabase
+        .from('skill_path_item_progress')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('skill_path_id', id);
+
+      userProgress = progress;
+      itemProgress = itemProgressData || [];
+    }
+    
+    const transformedData = {
+      ...skillPath,
+      path_items: itemsWithContent,
+      user_progress: userProgress ? [{ ...userProgress, item_progress: itemProgress }] : []
+    };
+
+    return { success: true, data: transformedData };
+  } catch (error) {
+    console.error('Error fetching skill path:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const createSkillPath = async (skillPath: Partial<SkillPath>) => {
+  try {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('skill_paths')
+      .insert([{
+        ...skillPath,
+        created_by: user.user.id
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error creating skill path:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const createSkillPathItems = async (skillPathId: string, items: Partial<SkillPathItem>[]) => {
+  try {
+    const { data, error } = await supabase
+      .from('skill_path_items')
+      .insert(items.map(item => ({
+        skill_path_id: skillPathId,
+        item_type: item.item_type,
+        item_id: item.item_id,
+        order_index: item.order_index,
+        is_required: item.is_required || true,
+        unlock_after: item.unlock_after || []
+      })));
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error creating skill path items:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const updateSkillPath = async (id: string, skillPath: Partial<SkillPath>) => {
+  try {
+    const { data, error } = await supabase
+      .from('skill_paths')
+      .update(skillPath)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error updating skill path:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const deleteSkillPath = async (id: string) => {
+  try {
+    const { error } = await supabase
+      .from('skill_paths')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting skill path:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const enrollInSkillPath = async (skillPathId: string) => {
+  try {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error('Not authenticated');
+
+    const { data, error } = await supabase
+      .from('skill_path_progress')
+      .insert({
+        user_id: user.user.id,
+        skill_path_id: skillPathId,
+        current_item_index: 0,
+        progress_percentage: 0,
+        started_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (error) {
+    console.error('Error enrolling in skill path:', error);
+    return { success: false, error: error.message };
+  }
+};

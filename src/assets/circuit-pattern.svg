@@ -1,0 +1,19 @@
+<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="circuitPattern" width="100" height="100" patternUnits="userSpaceOnUse">
+      <path d="M10,10 L30,10 L30,30 L50,30 L50,50 L70,50 L70,70 L90,70" fill="none" stroke="#FF3E3E" stroke-width="1" opacity="0.2"/>
+      <path d="M90,10 L70,10 L70,30 L50,30 L50,50 L30,50 L30,70 L10,70" fill="none" stroke="#FF3E3E" stroke-width="1" opacity="0.2"/>
+      <circle cx="10" cy="10" r="2" fill="#FF3E3E" opacity="0.4"/>
+      <circle cx="30" cy="30" r="2" fill="#FF3E3E" opacity="0.4"/>
+      <circle cx="50" cy="50" r="2" fill="#FF3E3E" opacity="0.4"/>
+      <circle cx="70" cy="70" r="2" fill="#FF3E3E" opacity="0.4"/>
+      <circle cx="90" cy="10" r="2" fill="#FF3E3E" opacity="0.4"/>
+      <circle cx="70" cy="30" r="2" fill="#FF3E3E" opacity="0.4"/>
+      <circle cx="50" cy="30" r="2" fill="#FF3E3E" opacity="0.4"/>
+      <circle cx="30" cy="50" r="2" fill="#FF3E3E" opacity="0.4"/>
+      <circle cx="10" cy="70" r="2" fill="#FF3E3E" opacity="0.4"/>
+      <circle cx="90" cy="70" r="2" fill="#FF3E3E" opacity="0.4"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#circuitPattern)" />
+</svg>

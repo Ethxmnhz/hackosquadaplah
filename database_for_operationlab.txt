@@ -1,0 +1,9 @@
+create table New_operation (
+  id uuid primary key default uuid_generate_v4(),
+  name text not null,
+  attack_scenario text not null,
+  defense_scenario text not null,
+  red_questions jsonb not null,
+  blue_questions jsonb not null,
+  created_at timestamp with time zone default now()
+);
