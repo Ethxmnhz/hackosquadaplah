@@ -13,7 +13,8 @@ const AdminGuard = () => {
   }
 
   if (!isAdmin) {
-    return <Navigate to="/dashboard" replace />;
+    // If not admin, redirect to access denied page
+    return <Navigate to="/access-denied" replace />;
   }
 
   return <Outlet />;

@@ -15,17 +15,30 @@ export const useAdmin = () => {
         return;
       }
 
+      // Special override for specific admin email
+      if (user.email === 'shaikhminhaz1975@gmail.com') {
+        setIsAdmin(true);
+        setLoading(false);
+        return;
+      }
+
       try {
+        // Check if user is in admin_users table
         const { data, error } = await supabase
           .from('admin_users')
           .select('id')
           .eq('id', user.id)
           .single();
 
-        if (error) throw error;
-        setIsAdmin(!!data);
+        if (error) {
+          console.error('Error checking admin status:', error);
+          // Don't grant admin access on error
+          setIsAdmin(false);
+        } else {
+          setIsAdmin(!!data);
+        }
       } catch (error) {
-        console.error('Error checking admin status:', error);
+        console.error('Exception checking admin status:', error);
         setIsAdmin(false);
       } finally {
         setLoading(false);

@@ -1,5 +1,7 @@
 # Arena Operations & Lab Matchmaking System Documentation
 
+> **Note:** For information about deprecated code patterns and architecture considerations, see [CODE_ARCHITECTURE_NOTES.md](./CODE_ARCHITECTURE_NOTES.md)
+
 ## Overview
 
 This document provides a comprehensive explanation of the arena operations and lab matchmaking system, including file structure, database design, and the flow of operations. This will help understand how all components work together to create the real-time matchmaking and lab session experience.

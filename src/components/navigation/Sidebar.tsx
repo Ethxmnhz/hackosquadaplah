@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useSidebar } from '../../contexts/SidebarContext';
+import { useAdmin } from '../../hooks/useAdmin';
 import Logo from '../ui/Logo';
 
 interface SidebarProps {
@@ -101,6 +102,7 @@ const NavSection = ({ title, children, icon }: NavSectionProps) => {
 const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
   const { signOut, user } = useAuth();
   const { isMinimized, toggleSidebar } = useSidebar();
+  const { isAdmin, loading: adminLoading } = useAdmin();
   const [currentFace, setCurrentFace] = useState(0);
   const [pixels, setPixels] = useState<Array<{ id: number; x: number; y: number; color: string; active: boolean }>>([]);
   const [isHovered, setIsHovered] = useState(false);
@@ -652,14 +654,16 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
             <NavItem to="/creator/manage" icon={<FolderCheck className="h-5 w-5" />} label={isMinimized ? "" : "My Challenges"} />
           </NavSection>
 
-          {/* Admin section */}
-          <NavSection title={isMinimized ? "" : "Admin Panel"} icon={<Settings className="h-4 w-4" />}>
-            <NavItem to="/admin" icon={<Shield className="h-5 w-5" />} label={isMinimized ? "" : "Dashboard"} />
-            <NavItem to="/admin/labs" icon={<Flask className="h-5 w-5" />} label={isMinimized ? "" : "Labs Management"} />
-            <NavItem to="/admin/skill-paths" icon={<BookOpen className="h-5 w-5" />} label={isMinimized ? "" : "Skill Paths"} isNew={!isMinimized} />
-            <NavItem to="/admin/operations" icon={<Monitor className="h-5 w-5" />} label={isMinimized ? "" : "Operations"} />
-            <NavItem to="/admin/laboperations" icon={<Monitor className="h-5 w-5" />} label={isMinimized ? "" : "LabOperations"} />
-          </NavSection>
+          {/* Admin section - only shown to admin users */}
+          {isAdmin && (
+            <NavSection title={isMinimized ? "" : "Admin Panel"} icon={<Settings className="h-4 w-4" />}>
+              <NavItem to="/admin" icon={<Shield className="h-5 w-5" />} label={isMinimized ? "" : "Dashboard"} />
+              <NavItem to="/admin/labs" icon={<Flask className="h-5 w-5" />} label={isMinimized ? "" : "Labs Management"} />
+              <NavItem to="/admin/skill-paths" icon={<BookOpen className="h-5 w-5" />} label={isMinimized ? "" : "Skill Paths"} isNew={!isMinimized} />
+              <NavItem to="/admin/operations" icon={<Monitor className="h-5 w-5" />} label={isMinimized ? "" : "Operations"} />
+              <NavItem to="/admin/laboperations" icon={<Monitor className="h-5 w-5" />} label={isMinimized ? "" : "LabOperations"} />
+            </NavSection>
+          )}
         </nav>
       </div>
       

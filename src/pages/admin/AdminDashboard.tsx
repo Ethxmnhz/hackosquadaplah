@@ -1,15 +1,18 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { 
   Shield, CheckCircle, XCircle, MessageSquare, FlaskRound as Flask, 
   Flag, Monitor, Server, Users, Activity, BarChart3, Settings,
   Edit2, Trash2, Plus, Search, Filter, RefreshCw, Eye,
-  AlertTriangle, Calendar, Clock, Trophy, Target, BookOpen
+  AlertTriangle, Calendar, Clock, Trophy, Target, BookOpen,
+  UserCog
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Challenge, Lab } from '../../lib/types';
 import Card from '../../components/ui/Card';
+import AdminUserManagement from '../../components/admin/AdminUserManagement';
 
 // Minimal type for lab sessions
 interface LabSession {
@@ -455,6 +458,10 @@ const AdminDashboard = () => {
               <RefreshCw className={`h-5 w-5 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
               {refreshing ? 'Refreshing...' : 'Refresh'}
             </button>
+            <Link to="/admin-dashboard" className="btn-primary px-4 py-2 text-base font-bold">
+              <UserCog className="h-5 w-5 mr-2 inline" />
+              Admin Users
+            </Link>
             <Link to="/admin/RedVsBlueSessionsAdminPage" className="btn-primary px-4 py-2 text-base font-bold">Red vs Blue Sessions Admin</Link>
           </div>
         </div>
@@ -641,7 +648,7 @@ const AdminDashboard = () => {
       </motion.div>
 
   {/* Content Sections */}
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Challenges Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -971,6 +978,23 @@ const AdminDashboard = () => {
             </table>
           )}
         </div>
+      </motion.div>
+      
+      {/* Admin User Management Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 1.0 }}
+        className="mt-8"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-2">
+            <UserCog className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-bold text-white">Admin User Management</h2>
+          </div>
+        </div>
+        
+        <AdminUserManagement />
       </motion.div>
     </div>
   );

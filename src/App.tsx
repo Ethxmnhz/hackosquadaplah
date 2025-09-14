@@ -48,6 +48,7 @@ import SkillPathsManagement from './pages/admin/SkillPathsManagement';
 import CreateSkillPathPage from './pages/admin/CreateSkillPathPage';
 import LabOperation from './pages/admin/LabOperation';
 import RedVsBlueSessionsAdminPage from './pages/admin/RedVsBlueSessionsAdminPage';
+import AdminDashboardPage from './pages/admin-dashboard/AdminDashboardPage';
 
 // Leaderboard Page
 import LeaderboardPage from './pages/leaderboard/LeaderboardPage';
@@ -57,6 +58,7 @@ import ProfilePage from './pages/profile/ProfilePage';
 
 // Error Pages
 import NotFoundPage from './pages/error/NotFoundPage';
+import AccessDenied from './pages/error/AccessDenied';
 
 function App() {
   const { pathname } = useLocation();
@@ -121,6 +123,7 @@ function App() {
               {/* Admin Routes */}
               <Route element={<AdminGuard />}>
                 <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
                 <Route path="/admin/labs" element={<LabsManagement />} />
                 <Route path="/admin/labs/create" element={<CreateLabPage />} />
                 <Route path="/admin/labs/edit/:id" element={<EditLabPage />} />
@@ -137,6 +140,9 @@ function App() {
 
           {/* Redirect root to dashboard or login */}
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          
+          {/* Access Denied Route */}
+          <Route path="/access-denied" element={<AccessDenied />} />
           
           {/* 404 Route */}
           <Route path="*" element={<NotFoundPage />} />
