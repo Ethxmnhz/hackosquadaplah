@@ -41,6 +41,8 @@ const ChallengePage = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState<Record<string, number>>({});
+  const [shakeQuestions, setShakeQuestions] = useState<Record<string, boolean>>({});
+  const [inputRefs] = useState<Record<string, HTMLInputElement | null>>({});
   const [labStatus, setLabStatus] = useState<'inactive' | 'spawning' | 'active' | 'error'>('inactive');
   const [labEndTime, setLabEndTime] = useState<Date | null>(null);
   const [taskLabStatus, setTaskLabStatus] = useState<Record<string, 'inactive' | 'spawning' | 'active' | 'error'>>({});
@@ -269,6 +271,14 @@ const ChallengePage = () => {
           ...prev,
           [questionId]: (prev[questionId] || 0) + 1
         }));
+        // Trigger shake animation
+        setShakeQuestions(prev => ({ ...prev, [questionId]: true }));
+        setTimeout(() => {
+          setShakeQuestions(prev => ({ ...prev, [questionId]: false }));
+          // Refocus input for quick retry
+          const el = inputRefs[questionId];
+          if (el) el.focus();
+        }, 600);
       }
     }
     
@@ -873,10 +883,11 @@ const ChallengePage = () => {
                                                   }));
                                                 }
                                               }}
-                                              className={`w-full px-3 py-2 rounded-lg border text-sm ${
+                                              ref={(el) => { if (el) inputRefs[question.id] = el; }}
+                                              className={`w-full px-3 py-2 rounded-lg border text-sm transition-all duration-300 ${
                                                 isAnswered 
                                                   ? 'bg-red-900/20 border-red-500/30 text-red-400' 
-                                                  : 'bg-slate-800/60 border-slate-600/40 text-white focus:border-red-400 focus:ring-1 focus:ring-red-400/20'
+                                                  : `bg-slate-800/60 border-slate-600/40 text-white focus:border-red-400 focus:ring-1 focus:ring-red-400/20 ${shakeQuestions[question.id] ? 'animate-[shake_0.4s_ease-in-out]' : ''}`
                                               }`}
                                               disabled={isAnswered}
                                               readOnly={isAnswered}
@@ -889,9 +900,21 @@ const ChallengePage = () => {
                                               Completed
                                             </div>
                                           ) : questionResults[question.id] && !questionResults[question.id].isCorrect ? (
-                                            <div className="text-red-400 bg-red-500/10 px-3 py-2 rounded-lg border border-red-500/20 text-sm font-medium">
-                                              Incorrect
-                                            </div>
+                                            <button
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleSubmitAnswer(question.id);
+                                              }}
+                                              disabled={submitting[question.id] || !answers[question.id]}
+                                              className="bg-slate-700/70 hover:bg-slate-600 text-red-300 hover:text-white border border-red-500/40 font-medium px-4 py-2 rounded-lg transition-colors text-sm flex items-center gap-2"
+                                            >
+                                              {submitting[question.id] ? 'Checking...' : (
+                                                <>
+                                                  <RotateCcw className="h-4 w-4" />
+                                                  Retry
+                                                </>
+                                              )}
+                                            </button>
                                           ) : (
                                             <button
                                               onClick={(e) => {

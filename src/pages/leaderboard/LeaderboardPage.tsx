@@ -6,6 +6,10 @@ import {
   ChevronUp, ChevronDown, Filter, Search, RefreshCw,
   Globe, Lock, Wifi, FlaskConical, Flag, Gem, Baby
 } from 'lucide-react';
+import podium1 from '../../assets/leaderboard1.png';
+import podium2 from '../../assets/leaderboard2.png';
+// Note: filename has a typo 'leaderbaord3.png' in assets folder
+import podium3 from '../../assets/leaderbaord3.png';
 import { useAuth } from '../../hooks/useAuth';
 import { supabase } from '../../lib/supabase';
 import Card from '../../components/ui/Card';
@@ -442,58 +446,7 @@ const LeaderboardPage = () => {
         </div>
       </motion.div>
 
-      {/* User Stats Card */}
-      {userStats && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="mb-8"
-        >
-          <Card className="p-6 border border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-              <div className="flex items-center gap-6">
-                <div className="relative">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center">
-                    <span className="text-2xl font-bold text-white">
-                      {user?.user_metadata?.username?.slice(0, 2).toUpperCase() || 'US'}
-                    </span>
-                  </div>
-                  <div className="absolute -bottom-2 -right-2 bg-background-dark rounded-full p-1">
-                    {getRankIcon(userStats.rank_position || 999)}
-                  </div>
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-white">
-                    {user?.user_metadata?.username || 'Anonymous'}
-                  </h2>
-                  <p className="text-primary font-medium">{userStats.rank_title}</p>
-                  <p className="text-gray-400">Rank #{userStats.rank_position || 'Unranked'}</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-6 md:mt-0">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{userStats.total_points}</div>
-                  <div className="text-sm text-gray-400">Points</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{userStats.challenges_completed}</div>
-                  <div className="text-sm text-gray-400">Challenges</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{userStats.labs_completed}</div>
-                  <div className="text-sm text-gray-400">Labs</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white">{userBadges.length}</div>
-                  <div className="text-sm text-gray-400">Badges</div>
-                </div>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-      )}
+      {/* User Stats Card removed as per request */}
 
       {/* Navigation Tabs */}
       <motion.div
@@ -569,46 +522,82 @@ const LeaderboardPage = () => {
               </Card>
             ) : (
               <>
-                {/* Top 3 Podium */}
+                {/* Top 3 Podium (Enhanced with images) */}
                 {filteredLeaderboard.length >= 3 && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    {filteredLeaderboard.slice(0, 3).map((entry, index) => (
-                      <motion.div
-                        key={entry.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                        className={`relative ${index === 0 ? 'md:order-2' : index === 1 ? 'md:order-1' : 'md:order-3'}`}
-                      >
-                        <Card className={`p-6 text-center border-2 bg-gradient-to-br ${getRankColor(entry.rank_position)}`}>
-                          <div className="relative mb-4">
-                            <div className={`w-20 h-20 mx-auto rounded-full bg-gradient-to-br ${getRankColor(entry.rank_position)} flex items-center justify-center border-4 border-white/20`}>
-                              <span className="text-xl font-bold text-white">
-                                {entry.username.slice(0, 2).toUpperCase()}
-                              </span>
+                  <div className="mb-10">
+                    <div className="flex flex-col md:flex-row items-stretch md:items-end justify-center gap-5">
+                      {filteredLeaderboard.slice(0,3).map((entry, idx) => {
+                        const rank = entry.rank_position; // 1,2,3
+                        const imageMap: Record<number, string> = { 1: podium1, 2: podium2, 3: podium3 };
+                        const imgSrc = imageMap[rank];
+                        // Compact avatar container; consistent sizing with subtle scale for 1st
+                        const avatarSize = rank === 1 ? 'w-48 h-48' : 'w-44 h-44';
+                        const gradientBg = rank === 1
+                          ? 'from-yellow-500/20 via-yellow-600/10 to-yellow-900/10'
+                          : rank === 2
+                            ? 'from-sky-400/20 via-blue-600/10 to-blue-900/10'
+                            : 'from-amber-600/20 via-amber-700/10 to-amber-900/10';
+                        return (
+                          <motion.div
+                            key={entry.id}
+                            initial={{ opacity: 0, y: 30 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.55, delay: idx * 0.12 }}
+                            className={`relative flex-1 max-w-sm ${rank === 1 ? 'md:order-2' : rank === 2 ? 'md:order-1' : 'md:order-3'}`}
+                          >
+                            <div className={`group rounded-xl border border-white/10 bg-gradient-to-br ${gradientBg} backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-400 overflow-hidden flex flex-col max-h-[440px]`}>
+                              <div className="pt-6 flex flex-col items-center">
+                                <div className={`relative ${avatarSize} mb-4`}>
+                                  <div className={`absolute -inset-1 rounded-full blur-md opacity-40 group-hover:opacity-60 transition ${rank===1?'bg-yellow-500/40':rank===2?'bg-sky-400/40':'bg-amber-600/40'}`}></div>
+                                  <div className="relative w-full h-full rounded-full overflow-hidden ring-4 ring-white/10 shadow-lg">
+                                    {imgSrc ? (
+                                      <img
+                                        src={imgSrc}
+                                        alt={`Rank ${rank}`}
+                                        className="w-full h-full object-cover object-center scale-105 group-hover:scale-[1.12] transition-transform duration-500 ease-out"
+                                      />
+                                    ) : (
+                                      <div className="w-full h-full flex items-center justify-center bg-slate-800/40 text-gray-500 text-xl font-bold">
+                                        {entry.username.slice(0,2).toUpperCase()}
+                                      </div>
+                                    )}
+                                    <div className={`absolute -bottom-2 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full text-[10px] font-semibold backdrop-blur-sm border ${rank===1?'bg-yellow-500/30 border-yellow-400/40 text-yellow-100':rank===2?'bg-sky-500/30 border-sky-400/40 text-sky-100':'bg-amber-600/30 border-amber-500/40 text-amber-100'}`}>#{rank}</div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center justify-center gap-2 mb-1 px-4 text-center">
+                                  {rank === 1 && <Crown className="h-5 w-5 text-yellow-400" />}
+                                  {rank === 2 && <Medal className="h-5 w-5 text-sky-300" />}
+                                  {rank === 3 && <Medal className="h-5 w-5 text-amber-500" />}
+                                  <h3 className="text-lg font-bold text-white truncate max-w-[160px]" title={entry.username}>{entry.username}</h3>
+                                </div>
+                                <p className="text-center text-xs text-gray-300 mb-3 font-medium px-4 truncate max-w-[200px]">{entry.rank_title}</p>
+                                <div className="text-center mb-4">
+                                  <span className="text-3xl font-extrabold bg-gradient-to-r from-white via-white to-gray-300 bg-clip-text text-transparent">
+                                    {entry.total_points}
+                                  </span>
+                                  <div className="text-[10px] uppercase tracking-wider text-gray-400 mt-0.5">Points</div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-3 text-[11px] w-full px-5 mb-4">
+                                  <div className="rounded-lg bg-black/30 border border-white/5 p-2 text-center">
+                                    <div className="text-gray-400 leading-none mb-1">Challenges</div>
+                                    <div className="text-white font-semibold text-base leading-none">{entry.challenges_completed}</div>
+                                  </div>
+                                  <div className="rounded-lg bg-black/30 border border-white/5 p-2 text-center">
+                                    <div className="text-gray-400 leading-none mb-1">Labs</div>
+                                    <div className="text-white font-semibold text-base leading-none">{entry.labs_completed}</div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="mt-auto px-5 pb-4 w-full">
+                                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                                  <div className={`h-full ${rank===1?'bg-gradient-to-r from-yellow-300 via-yellow-400 to-yellow-500':rank===2?'bg-gradient-to-r from-sky-300 via-blue-400 to-blue-600':'bg-gradient-to-r from-amber-500 via-amber-600 to-amber-700'} animate-pulse`}></div>
+                                </div>
+                              </div>
                             </div>
-                            <div className="absolute -top-2 -right-2">
-                              {getRankIcon(entry.rank_position)}
-                            </div>
-                          </div>
-                          
-                          <h3 className="text-xl font-bold text-white mb-1">{entry.username}</h3>
-                          <p className="text-white/80 mb-2">{entry.rank_title}</p>
-                          <div className="text-3xl font-bold text-white mb-4">{entry.total_points}</div>
-                          
-                          <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div>
-                              <div className="text-white/60">Challenges</div>
-                              <div className="text-white font-medium">{entry.challenges_completed}</div>
-                            </div>
-                            <div>
-                              <div className="text-white/60">Labs</div>
-                              <div className="text-white font-medium">{entry.labs_completed}</div>
-                            </div>
-                          </div>
-                        </Card>
-                      </motion.div>
-                    ))}
+                          </motion.div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
 
@@ -627,7 +616,7 @@ const LeaderboardPage = () => {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-background-light">
-                        {filteredLeaderboard.map((entry, index) => (
+                        {filteredLeaderboard.slice(3).map((entry, index) => (
                           <motion.tr
                             key={entry.id}
                             initial={{ opacity: 0, x: -20 }}

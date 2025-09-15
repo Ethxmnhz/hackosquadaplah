@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, Home, Flag, FlaskRound as Flask, ShieldAlert, Sword, 
+  X, Home, Flag, FlaskRound as Flask, Sword, 
   Plus, FolderCheck, ChevronDown, ChevronRight,
-  Trophy, User, LogOut, Settings, Bell, Star, Zap, Target,
-  Activity, Calendar, Award, Crown, Flame, Monitor, Shield, BookOpen
+  Trophy, User, LogOut, Settings,
+  Award, Monitor, Shield
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useSidebar } from '../../contexts/SidebarContext';
 import { useAdmin } from '../../hooks/useAdmin';
-import Logo from '../ui/Logo';
+import { AnimatedLogo } from '../ui/AnimatedLogo';
 
 interface SidebarProps {
   mobile?: boolean;
@@ -23,6 +23,7 @@ interface NavItemProps {
   label: string;
   badge?: number;
   isNew?: boolean;
+  isMinimized?: boolean;
 }
 
 interface NavSectionProps {
@@ -31,40 +32,60 @@ interface NavSectionProps {
   icon?: React.ReactNode;
 }
 
-const NavItem = ({ to, icon, label, badge, isNew }: NavItemProps) => (
+const NavItem = ({ to, icon, label, badge, isNew, isMinimized }: NavItemProps) => (
   <NavLink
     to={to}
-    className={({ isActive }) => 
-      `group relative flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${
-        isActive 
-          ? 'bg-gradient-to-r from-red-500/20 to-purple-600/20 text-red-400 border-l-4 border-red-500 shadow-lg' 
-          : 'text-gray-300 hover:text-white hover:bg-slate-800/50'
-      }`
-    }
+    title={isMinimized ? label : undefined}
+    className={({ isActive }) => {
+      const base = 'group relative flex rounded-xl transition-all duration-200';
+      const sizing = isMinimized ? 'justify-center px-2 py-4 h-14' : 'items-center px-4 py-3';
+      const active = isActive
+        ? (isMinimized
+            ? 'bg-gradient-to-br from-red-500/30 to-purple-600/30 text-red-400 shadow-inner'
+            : 'bg-gradient-to-r from-red-500/20 to-purple-600/20 text-red-400 border-l-4 border-red-500 shadow-lg')
+        : 'text-gray-300 hover:text-white hover:bg-slate-800/50';
+      return `${base} ${sizing} ${active}`;
+    }}
   >
-    <div className="relative">
+    <div className={`relative ${isMinimized ? '' : 'flex items-center'}`}>
       {icon}
-      {isNew && (
+      {isNew && !isMinimized && (
         <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
       )}
+      {isNew && isMinimized && (
+        <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+      )}
     </div>
-    <span className="ml-3 font-medium">{label}</span>
-    {badge && badge > 0 && (
-      <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
-        {badge > 99 ? '99+' : badge}
-      </span>
-    )}
-    {isNew && (
-      <span className="ml-auto bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full px-2 py-1 font-bold">
-        NEW
-      </span>
+    {!isMinimized && (
+      <>
+        <span className="ml-3 font-medium truncate">{label}</span>
+        {badge && badge > 0 && (
+          <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+            {badge > 99 ? '99+' : badge}
+          </span>
+        )}
+        {isNew && (
+          <span className="ml-auto bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full px-2 py-1 font-bold">
+            NEW
+          </span>
+        )}
+      </>
     )}
   </NavLink>
 );
 
-const NavSection = ({ title, children, icon }: NavSectionProps) => {
+const NavSection = ({ title, children, icon }: NavSectionProps & { isMinimized?: boolean }) => {
   const [isOpen, setIsOpen] = useState(true);
-  
+
+  // When minimized, always show items (no header if title is empty)
+  if (!title) {
+    return (
+      <div className="mb-2 space-y-1">
+        {children}
+      </div>
+    );
+  }
+
   return (
     <div className="mb-6">
       <button
@@ -81,7 +102,6 @@ const NavSection = ({ title, children, icon }: NavSectionProps) => {
           <ChevronDown className="h-4 w-4 group-hover:text-red-400 transition-colors" />
         </motion.div>
       </button>
-      
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -100,26 +120,20 @@ const NavSection = ({ title, children, icon }: NavSectionProps) => {
 };
 
 const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
-  const { signOut, user } = useAuth();
+  const { signOut } = useAuth();
   const { isMinimized, toggleSidebar } = useSidebar();
-  const { isAdmin, loading: adminLoading } = useAdmin();
+  const { isAdmin } = useAdmin();
   const [currentFace, setCurrentFace] = useState(0);
   const [pixels, setPixels] = useState<Array<{ id: number; x: number; y: number; color: string; active: boolean }>>([]);
   const [isHovered, setIsHovered] = useState(false);
   const [glitchMode, setGlitchMode] = useState(false);
-  const [hackingProgress, setHackingProgress] = useState(0);
+  // const [hackingProgress, setHackingProgress] = useState(0); // reserved for future detailed progress UI
   const [systemStatus, setSystemStatus] = useState<'secure' | 'scanning' | 'breach' | 'compromised'>('secure');
   const [matrixRain, setMatrixRain] = useState(false);
   const [hackingSequence, setHackingSequence] = useState<'idle' | 'colorFill' | 'hacking' | 'textDisplay' | 'complete'>('idle');
   const [colorFillProgress, setColorFillProgress] = useState(0);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [userStats, setUserStats] = useState({
-    level: 5,
-    xp: 1250,
-    totalXp: 2000,
-    streak: 7,
-    challenges: 23
-  });
+  // Removed unused userStats state (was for potential future profile summary)
 
   // Text patterns for "HACKOSQUAD IS NOT HACKED"
   const textPatterns = [
@@ -245,8 +259,7 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
   useEffect(() => {
     // System status animation
     const statusInterval = setInterval(() => {
-      const statuses: Array<typeof systemStatus> = ['secure', 'scanning', 'breach', 'compromised'];
-      const randomChance = Math.random();
+  const randomChance = Math.random();
       
       if (randomChance < 0.05) { // 5% chance of breach
         setSystemStatus('breach');
@@ -263,13 +276,8 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
     }, 5000);
 
     // Hacking progress simulation
-    const hackInterval = setInterval(() => {
-      if (systemStatus === 'scanning') {
-        setHackingProgress(prev => (prev + Math.random() * 20) % 100);
-      } else {
-        setHackingProgress(0);
-      }
-    }, 200);
+    // Removed hacking progress interval (unused visual element)
+    const hackInterval = setInterval(() => {}, 200);
 
     return () => {
       clearInterval(statusInterval);
@@ -393,18 +401,21 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
       )}
 
       {/* Sidebar header */}
-      <div className="flex items-center justify-between h-16 px-6 border-b border-red-500/20" style={{ backgroundColor: '#0A030F' }}>
+  <div className="flex items-center h-16 px-4 border-b border-red-500/20 relative" style={{ backgroundColor: '#0A030F' }}>
         {!isMinimized ? (
-          <Logo size="small" />
+          <div className="w-full flex items-center justify-center">
+            <NavLink to="/dashboard" className="focus:outline-none focus:ring-2 focus:ring-red-500/50 rounded-md inline-flex" aria-label="Go to dashboard">
+              <AnimatedLogo size="lg" intensity="minimal" />
+            </NavLink>
+          </div>
         ) : (
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-red-500 to-purple-600 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-r from-red-500 to-purple-600 flex items-center justify-center mx-auto">
             <span className="text-white font-bold text-sm">H</span>
           </div>
         )}
-        
         {mobile && onClose && !isMinimized && (
           <button
-            className="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-slate-800/50 transition-all duration-200"
+            className="absolute right-2 p-2 text-gray-400 hover:text-white rounded-lg hover:bg-slate-800/50 transition-all duration-200"
             onClick={onClose}
           >
             <X className="h-5 w-5" />
@@ -624,34 +635,34 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
         <nav className="flex-1 px-4 space-y-2">
           {/* Main section */}
           <NavSection title={isMinimized ? "" : "Main"} icon={<Home className="h-4 w-4" />}>
-            <NavItem to="/dashboard" icon={<Home className="h-5 w-5" />} label={isMinimized ? "" : "Dashboard"} />
-            <NavItem to="/challenges" icon={<Flag className="h-5 w-5" />} label={isMinimized ? "" : "Challenges"} badge={isMinimized ? undefined : 3} />
-            <NavItem to="/skill-paths" icon={<Award className="h-5 w-5" />} label={isMinimized ? "" : "Certifications"} />
-            <NavItem to="/labs" icon={<Flask className="h-5 w-5" />} label={isMinimized ? "" : "Labs"} isNew={!isMinimized} />
-            <NavItem to="/threat-intelligence" icon={<Shield className="h-5 w-5" />} label={isMinimized ? "" : "Threat Intel"} isNew={!isMinimized} />
-            <NavItem to="/leaderboard" icon={<Trophy className="h-5 w-5" />} label={isMinimized ? "" : "Leaderboard"} />
+            <NavItem to="/dashboard" icon={<Home className="h-5 w-5" />} label="Dashboard" isMinimized={isMinimized} />
+            <NavItem to="/challenges" icon={<Flag className="h-5 w-5" />} label="Challenges" badge={isMinimized ? undefined : 3} isMinimized={isMinimized} />
+            <NavItem to="/skill-paths" icon={<Award className="h-5 w-5" />} label="Certifications" isMinimized={isMinimized} />
+            <NavItem to="/labs" icon={<Flask className="h-5 w-5" />} label="Labs" isNew={!isMinimized} isMinimized={isMinimized} />
+            <NavItem to="/threat-intelligence" icon={<Shield className="h-5 w-5" />} label="Threat Intel" isNew={!isMinimized} isMinimized={isMinimized} />
+            <NavItem to="/leaderboard" icon={<Trophy className="h-5 w-5" />} label="Leaderboard" isMinimized={isMinimized} />
           </NavSection>
           
           {/* Operations section */}
           <NavSection title={isMinimized ? "" : "Live Operations"} icon={<Monitor className="h-4 w-4" />}>
-            <NavItem to="/operations" icon={<Monitor className="h-5 w-5 text-red-400" />} label={isMinimized ? "" : "Operations"} isNew={!isMinimized} />
-            <NavItem to="/operations/arena" icon={<Sword className="h-5 w-5 text-fuchsia-400" />} label={isMinimized ? "" : "Red vs Blue"} />
+            <NavItem to="/operations" icon={<Monitor className="h-5 w-5 text-red-400" />} label="Operations" isNew={!isMinimized} isMinimized={isMinimized} />
+            <NavItem to="/operations/arena" icon={<Sword className="h-5 w-5 text-fuchsia-400" />} label="Red vs Blue" isMinimized={isMinimized} />
           </NavSection>
           
           {/* Creator Zone section */}
           <NavSection title={isMinimized ? "" : "Creator Zone"} icon={<Plus className="h-4 w-4" />}>
-            <NavItem to="/creator/create" icon={<Plus className="h-5 w-5" />} label={isMinimized ? "" : "Create Challenge"} />
-            <NavItem to="/creator/manage" icon={<FolderCheck className="h-5 w-5" />} label={isMinimized ? "" : "My Challenges"} />
+            <NavItem to="/creator/create" icon={<Plus className="h-5 w-5" />} label="Create Challenge" isMinimized={isMinimized} />
+            <NavItem to="/creator/manage" icon={<FolderCheck className="h-5 w-5" />} label="My Challenges" isMinimized={isMinimized} />
           </NavSection>
 
           {/* Admin section - only shown to admin users */}
           {isAdmin && (
             <NavSection title={isMinimized ? "" : "Admin Panel"} icon={<Settings className="h-4 w-4" />}>
-              <NavItem to="/admin" icon={<Shield className="h-5 w-5" />} label={isMinimized ? "" : "Dashboard"} />
-              <NavItem to="/admin/labs" icon={<Flask className="h-5 w-5" />} label={isMinimized ? "" : "Labs Management"} />
-              <NavItem to="/admin/skill-paths" icon={<Award className="h-5 w-5" />} label={isMinimized ? "" : "Certifications"} isNew={!isMinimized} />
-              <NavItem to="/admin/operations" icon={<Monitor className="h-5 w-5" />} label={isMinimized ? "" : "Operations"} />
-              <NavItem to="/admin/laboperations" icon={<Monitor className="h-5 w-5" />} label={isMinimized ? "" : "LabOperations"} />
+              <NavItem to="/admin" icon={<Shield className="h-5 w-5" />} label="Dashboard" isMinimized={isMinimized} />
+              <NavItem to="/admin/labs" icon={<Flask className="h-5 w-5" />} label="Labs Management" isMinimized={isMinimized} />
+              <NavItem to="/admin/skill-paths" icon={<Award className="h-5 w-5" />} label="Certifications" isNew={!isMinimized} isMinimized={isMinimized} />
+              <NavItem to="/admin/operations" icon={<Monitor className="h-5 w-5" />} label="Operations" isMinimized={isMinimized} />
+              <NavItem to="/admin/laboperations" icon={<Monitor className="h-5 w-5" />} label="LabOperations" isMinimized={isMinimized} />
             </NavSection>
           )}
         </nav>
