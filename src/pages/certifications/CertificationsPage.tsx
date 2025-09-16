@@ -41,6 +41,15 @@ const CertificationsPage = () => {
     cert.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const computeProgress = (cert: any) => {
+    if (cert?.user_progress?.progress_percentage !== undefined) return cert.user_progress.progress_percentage;
+    const completed = Array.isArray(cert?.user_progress?.completed_items) ? cert.user_progress.completed_items.length : 0;
+    const total = Array.isArray(cert?.path_items) ? cert.path_items.length : 0;
+    return total > 0 ? (completed / total) * 100 : 0;
+  };
+
+  const getPassingScore = (cert: any) => typeof cert.passing_score_percent === 'number' ? cert.passing_score_percent : 75;
+
   const categories = ['all', 'Web Security', 'Network Security', 'Cryptography', 'Digital Forensics', 'Penetration Testing'];
   const difficulties = ['all', 'beginner', 'intermediate', 'advanced', 'expert'];
 
@@ -134,6 +143,8 @@ const CertificationsPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Featured Certification */}
         {!loading && filteredCertifications.length > 0 && (
+          // Cast to any to access extended certification fields not in base SkillPath interface
+          (() => { const featured: any = filteredCertifications[0]; return (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -146,32 +157,61 @@ const CertificationsPage = () => {
             </h2>
             <div className="bg-gradient-to-br from-slate-900 to-slate-800 border border-slate-700 rounded-xl overflow-hidden">
               <div className="grid grid-cols-1 md:grid-cols-3">
-                <div className="col-span-1 md:col-span-1 bg-gradient-to-br from-red-500/20 to-purple-600/20 p-6">
-                  {filteredCertifications[0].cover_image ? (
-                    <img 
-                      src={filteredCertifications[0].cover_image} 
-                      alt={filteredCertifications[0].title} 
-                      className="w-full h-64 object-cover rounded-lg shadow-lg" 
+                <div className="col-span-1 md:col-span-1 bg-gradient-to-br from-red-500/20 to-purple-600/20 p-6 flex flex-col">
+                  {featured.certificate_image_url ? (
+                    <div className="relative w-full h-64">
+                      <img
+                        src={featured.certificate_image_url}
+                        alt={featured.title + ' certificate'}
+                        className="w-full h-64 object-cover rounded-lg shadow-lg ring-1 ring-white/10"
+                      />
+                      <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-red-500/10 to-transparent" />
+                    </div>
+                  ) : featured.cover_image ? (
+                    <img
+                      src={featured.cover_image}
+                      alt={featured.title}
+                      className="w-full h-64 object-cover rounded-lg shadow-lg"
                     />
                   ) : (
-                    <div className="w-full h-64 bg-slate-800/50 rounded-lg flex items-center justify-center">
+                    <div className="w-full h-64 bg-slate-800/50 rounded-lg flex items-center justify-center border border-slate-700/50">
                       <Award className="h-24 w-24 text-red-400/50" />
                     </div>
                   )}
+                  <div className="mt-4 text-xs text-gray-400 flex flex-col gap-1">
+                    <span>Passing Score: <span className="text-gray-200 font-medium">{getPassingScore(featured)}%</span></span>
+                    {featured.exam_duration_minutes && (
+                      <span>Exam Duration: <span className="text-gray-200 font-medium">{featured.exam_duration_minutes} min</span></span>
+                    )}
+                    {featured.validity_period_days !== undefined && featured.validity_period_days !== null && (
+                      <span>Validity: <span className="text-gray-200 font-medium">{featured.validity_period_days === 0 ? 'Lifetime' : `${featured.validity_period_days} days`}</span></span>
+                    )}
+                  </div>
                 </div>
                 <div className="col-span-1 md:col-span-2 p-6 md:p-8 flex flex-col">
                   <div className="mb-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getDifficultyColor(filteredCertifications[0].difficulty)}`}>
-                      {filteredCertifications[0].difficulty.toUpperCase()}
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getDifficultyColor(featured.difficulty)}`}>
+                      {featured.difficulty.toUpperCase()}
                     </span>
                     <span className="ml-2 text-xs text-gray-400 bg-slate-800 px-2 py-1 rounded">
-                      {filteredCertifications[0].category}
+                      {featured.category}
                     </span>
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-3">{filteredCertifications[0].title}</h3>
+                  <h3 className="text-2xl font-bold text-white mb-3 flex items-center gap-3">
+                    {featured.code && (
+                      <span className="px-2 py-1 text-xs rounded bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 font-semibold tracking-wide">{featured.code}</span>
+                    )}
+                    {featured.title}
+                  </h3>
                   <p className="text-gray-300 mb-6">
-                    {filteredCertifications[0].short_description || filteredCertifications[0].description}
+                    {featured.short_description || featured.description}
                   </p>
+                  <div className="mb-6 text-sm text-indigo-300 bg-indigo-600/10 border border-indigo-500/20 rounded-lg p-4">
+                    <p className="font-medium text-indigo-200 flex items-start gap-2">
+                      <Shield className="h-4 w-4 mt-0.5" />
+                      <span>To earn this certification you must complete all required modules and pass the final exam with at least {getPassingScore(featured)}%.</span>
+                    </p>
+                  </div>
                   
                   <div className="grid grid-cols-3 gap-4 mb-6">
                     <div className="bg-slate-800/50 rounded-lg p-3 text-center">
@@ -191,23 +231,23 @@ const CertificationsPage = () => {
                     </div>
                   </div>
                   
-                  {filteredCertifications[0].user_progress ? (
+                  {featured.user_progress ? (
                     <div className="mt-auto">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-white text-sm font-medium">Progress</span>
-                        <span className="text-white text-sm">{Math.round(filteredCertifications[0].user_progress.progress_percentage)}%</span>
+                        <span className="text-white text-sm font-medium">Overall Progress</span>
+                        <span className="text-white text-sm">{Math.round(computeProgress(featured))}%</span>
                       </div>
-                      <div className="w-full bg-gray-700 rounded-full h-2 mb-4">
-                        <div 
-                          className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(filteredCertifications[0].user_progress.progress_percentage)}`}
-                          style={{ width: `${filteredCertifications[0].user_progress.progress_percentage}%` }}
+                      <div className="w-full bg-gray-700/60 rounded-full h-2 mb-4 overflow-hidden">
+                        <div
+                          className={`h-2 rounded-full transition-all duration-500 ${getProgressColor(computeProgress(featured))}`}
+                          style={{ width: `${computeProgress(featured)}%` }}
                         ></div>
                       </div>
                       <button 
-                        onClick={() => navigate(`/skill-paths/${filteredCertifications[0].id}`)}
+                        onClick={() => navigate(`/skill-paths/${featured.id}`)}
                         className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center"
                       >
-                        {filteredCertifications[0].user_progress.status === 'completed' ? (
+                        {featured.user_progress.status === 'completed' ? (
                           <>
                             <CheckCircle className="h-5 w-5 mr-2" />
                             View Certificate
@@ -222,7 +262,7 @@ const CertificationsPage = () => {
                     </div>
                   ) : (
                     <button 
-                      onClick={() => navigate(`/skill-paths/${filteredCertifications[0].id}`)}
+                      onClick={() => navigate(`/skill-paths/${featured.id}`)}
                       className="mt-auto w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center"
                     >
                       <Shield className="h-5 w-5 mr-2" />
@@ -233,6 +273,7 @@ const CertificationsPage = () => {
               </div>
             </div>
           </motion.div>
+          ); })()
         )}
 
         {/* All Certifications */}
@@ -253,7 +294,10 @@ const CertificationsPage = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCertifications.map((cert, index) => (
+            {filteredCertifications.map((cert, index) => {
+              const passing = getPassingScore(cert as any);
+              const progress = computeProgress(cert as any);
+              return (
               <motion.div
                 key={cert.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -273,22 +317,27 @@ const CertificationsPage = () => {
                         <Award className="h-16 w-16 text-red-400/50" />
                       </div>
                     )}
-                    <div className="absolute top-4 right-4">
+                    <div className="absolute top-4 left-4 flex flex-wrap gap-2 items-center">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getDifficultyColor(cert.difficulty)}`}>
                         {cert.difficulty.toUpperCase()}
                       </span>
+                      {(cert as any).code && (
+                        <span className="px-2 py-1 rounded text-[10px] font-semibold bg-indigo-600/30 text-indigo-200 border border-indigo-500/40 tracking-wide">
+                          {(cert as any).code}
+                        </span>
+                      )}
                     </div>
                     {cert.user_progress && (
                       <div className="absolute bottom-4 left-4 right-4">
                         <div className="bg-black/50 backdrop-blur-sm rounded-lg p-2">
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-white text-sm font-medium">Progress</span>
-                            <span className="text-white text-sm">{Math.round(cert.user_progress.progress_percentage)}%</span>
+                            <span className="text-white text-sm">{Math.round(progress)}%</span>
                           </div>
                           <div className="w-full bg-gray-700 rounded-full h-2">
                             <div 
-                              className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(cert.user_progress.progress_percentage)}`}
-                              style={{ width: `${cert.user_progress.progress_percentage}%` }}
+                              className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(progress)}`}
+                              style={{ width: `${progress}%` }}
                             ></div>
                           </div>
                         </div>
@@ -321,6 +370,10 @@ const CertificationsPage = () => {
                         <Target className="h-4 w-4 mr-1" />
                         {cert.path_items?.length || 0} modules
                       </div>
+                    </div>
+                    <div className="text-xs text-gray-500 mb-3 flex items-center gap-2">
+                      <Shield className="h-3 w-3 text-indigo-400" />
+                      <span>Exam requires {passing}% to pass</span>
                     </div>
 
                     <div className="flex items-center justify-between">
@@ -356,7 +409,8 @@ const CertificationsPage = () => {
                   </div>
                 </Card>
               </motion.div>
-            ))}
+              );
+            })}
           </div>
         )}
 

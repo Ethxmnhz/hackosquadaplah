@@ -1,9 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import { ChallengeFormData } from './validation';
-import { Lab, LabQuestion } from './types';
+import { Lab, LabQuestion, SkillPath, SkillPathItem } from './types';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-supabase-url.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
+// Cast import.meta to any to avoid TS complaints if vite env type not declared
+const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL || 'https://your-supabase-url.supabase.co';
+const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
 
 // Initialize the Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
@@ -104,7 +105,7 @@ export const submitChallengeAnswer = async (challengeId: string, questionId: str
           
           // Find the question in the enhanced structure
           for (const task of enhancedTasks) {
-            const question = task.questions?.find(q => q.id === questionId);
+            const question = task.questions?.find((q: any) => q.id === questionId);
             if (question) {
               taskQuestion = {
                 ...question,
@@ -125,8 +126,8 @@ export const submitChallengeAnswer = async (challengeId: string, questionId: str
       console.log('Processing enhanced task question:', taskQuestion);
       
       // Get all questions in order from the enhanced structure first
-      const allQuestions = enhancedTasks?.flatMap(task => 
-        task.questions?.map(q => q.id) || []
+      const allQuestions = enhancedTasks?.flatMap((task: any) =>
+        task.questions?.map((q: any) => q.id) || []
       ) || [];
       console.log('📋 All questions in order:', allQuestions);
 
@@ -264,8 +265,8 @@ export const submitChallengeAnswer = async (challengeId: string, questionId: str
           if (allAnswered) {
             console.log('🎉 All questions answered! Marking challenge as completed...');
             
-            const totalPointsFromStructure = enhancedTasks?.reduce((sum, task) => 
-              sum + task.questions.reduce((qSum, q) => qSum + q.points, 0), 0
+            const totalPointsFromStructure = enhancedTasks?.reduce((sum: number, task: any) =>
+              sum + task.questions.reduce((qSum: number, q: any) => qSum + q.points, 0), 0
             ) || 0;
 
             await supabase
@@ -425,7 +426,7 @@ export const getChallenge = async (id: string) => {
       enhancedChallenge.tasks = enhancedTasks.map((task, taskIndex) => ({
         ...task,
         id: task.id || `task-${taskIndex}`,
-        questions: task.questions?.map((q, qIndex) => ({
+  questions: task.questions?.map((q: any, qIndex: number) => ({
           ...q,
           id: q.id || `${task.id || taskIndex}-${qIndex}`
         })) || []
@@ -437,14 +438,14 @@ export const getChallenge = async (id: string) => {
         title: 'Challenge Questions',
         description: 'Complete all questions to finish this challenge',
         explanation: challenge.description || '',
-        questions: challenge.questions.map(q => ({
+  questions: challenge.questions.map((q: any) => ({
           id: q.id,
           question_text: q.question,
           expected_answer: q.flag,
           answer_validation: 'exact',
           case_sensitive: false,
           points: q.points,
-          hints: (q.hints || []).map(hint => ({ text: hint, unlock_after_attempts: 2 })),
+          hints: (q.hints || []).map((hint: any) => ({ text: hint, unlock_after_attempts: 2 })),
           question_type: 'text' as const,
           solution_explanation: q.solution_explanation
         })),
@@ -471,8 +472,8 @@ export const getChallenge = async (id: string) => {
         console.log('=== PROGRESS TRACKING START ===');
         
         // Get all question IDs in order FIRST
-        const allQuestionIds = enhancedChallenge.tasks?.flatMap(task => 
-          task.questions?.map(q => q.id) || []
+        const allQuestionIds = enhancedChallenge.tasks?.flatMap((task: any) =>
+          task.questions?.map((q: any) => q.id) || []
         ) || [];
         console.log('📋 All question IDs in order:', allQuestionIds);
         
@@ -530,8 +531,8 @@ export const getChallenge = async (id: string) => {
           .eq('source_type', 'challenge');
 
         // Filter answers that belong to this challenge's questions
-        const allQuestionIds = enhancedChallenge.tasks?.flatMap(task => 
-          task.questions?.map(q => q.id) || []
+        const allQuestionIds = enhancedChallenge.tasks?.flatMap((task: any) =>
+          task.questions?.map((q: any) => q.id) || []
         ) || [];
         
         answeredQuestions = new Set(
@@ -584,7 +585,7 @@ export const loadChallenges = async () => {
           id: 'legacy-task-1',
           title: 'Challenge Questions',
           description: 'Complete all questions to finish this challenge',
-          questions: challenge.questions.map(q => ({
+          questions: challenge.questions.map((q: any) => ({
             id: q.id,
             question_text: q.question,
             expected_answer: q.flag,
@@ -1070,7 +1071,8 @@ export const getSkillPaths = async (options?: {
     let query = supabase
       .from('skill_paths')
       .select(`
-        *,
+        id, title, description, short_description, difficulty, estimated_duration, total_points, category, prerequisites, learning_objectives, cover_image, is_published, created_at, updated_at, created_by,
+        code, icon_url, certificate_image_url, exam_type, exam_duration_minutes, passing_score_percent, max_attempts, cooldown_hours_between_attempts, validity_period_days, recommended_experience, delivery_mode, certificate_title_override, certificate_subtitle, issuer_name, issuer_signature_url, metadata_json, is_featured, tags,
         skill_path_items(*)
       `);
 
@@ -1140,13 +1142,14 @@ export const getSkillPaths = async (options?: {
         .eq('user_id', user.id);
 
       const skillPathsWithProgress = skillPathsWithItems.map(skillPath => {
-        const progress = progressData?.find(p => p.skill_path_id === skillPath.id);
-        return {
-          ...skillPath,
-          user_progress: progress ? [progress] : [],
-          enrolled_count: 0 // TODO: Add actual enrolled count
-        };
-      });
+          const progress = progressData?.find(p => p.skill_path_id === skillPath.id);
+          return {
+            ...skillPath,
+            // Return a single object (or undefined) to match types instead of wrapping in array
+            user_progress: progress || undefined,
+            enrolled_count: 0 // TODO: Add actual enrolled count
+          };
+        });
 
       return { success: true, data: skillPathsWithProgress };
     }
@@ -1154,7 +1157,7 @@ export const getSkillPaths = async (options?: {
     return { success: true, data: skillPathsWithItems.map(sp => ({ ...sp, enrolled_count: 0 })) };
   } catch (error) {
     console.error('Error fetching skill paths:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to fetch skill paths' };
   }
 };
 
@@ -1163,74 +1166,86 @@ export const getSkillPath = async (id: string) => {
     const { data: skillPath, error } = await supabase
       .from('skill_paths')
       .select(`
-        *,
+        id, title, description, short_description, difficulty, estimated_duration, total_points, category, prerequisites, learning_objectives, cover_image, is_published, created_at, updated_at, created_by,
+        code, icon_url, certificate_image_url, exam_type, exam_duration_minutes, passing_score_percent, max_attempts, cooldown_hours_between_attempts, validity_period_days, recommended_experience, delivery_mode, certificate_title_override, certificate_subtitle, issuer_name, issuer_signature_url, metadata_json, is_featured, tags,
         skill_path_items(*)
       `)
       .eq('id', id)
       .single();
 
     if (error) throw error;
-    
+
     // Manually fetch challenges and labs for the skill path
     const pathItems = skillPath.skill_path_items || [];
-    
+
     const itemsWithContent = await Promise.all(
-      pathItems.map(async (item) => {
-        let content = null;
-        
-        if (item.item_type === 'challenge') {
-          const { data: challenge } = await supabase
-            .from('challenges')
-            .select('*')
-            .eq('id', item.item_id)
-            .single();
-          content = { challenge };
-        } else if (item.item_type === 'lab') {
-          const { data: lab } = await supabase
-            .from('labs')
-            .select('*')
-            .eq('id', item.item_id)
-            .single();
-          content = { lab };
+      pathItems.map(async (item: any) => {
+        try {
+          let content: any = {};
+          if (item.item_type === 'challenge') {
+            const { data: challenge } = await supabase
+              .from('challenges')
+              .select('*')
+              .eq('id', item.item_id)
+              .maybeSingle();
+            if (challenge) content.challenge = challenge;
+          } else if (item.item_type === 'lab') {
+            const { data: lab } = await supabase
+              .from('labs')
+              .select('*')
+              .eq('id', item.item_id)
+              .maybeSingle();
+            if (lab) content.lab = lab;
+          }
+          return { ...item, ...content };
+        } catch {
+          return item; // Fail soft on individual content fetch
         }
-        
-        return { ...item, ...content };
       })
     );
 
-    // Get user progress if authenticated
+    // Get user progress if authenticated; tolerate no row (406) as 'not enrolled'
     const user = (await supabase.auth.getUser()).data.user;
-    let userProgress = null;
-    let itemProgress = [];
+    let userProgress: any = undefined;
+    let itemProgress: any[] = [];
 
     if (user) {
-      const { data: progress } = await supabase
-        .from('skill_path_progress')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('skill_path_id', id)
-        .single();
-
-      const { data: itemProgressData } = await supabase
-        .from('skill_path_item_progress')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('skill_path_id', id);
-
-      userProgress = progress;
-      itemProgress = itemProgressData || [];
+      try {
+        const { data: progress, error: progressError } = await supabase
+          .from('skill_path_progress')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('skill_path_id', id)
+          .maybeSingle();
+        if (!progressError && progress) userProgress = progress;
+      } catch (progressErr: any) {
+        // Ignore 406 (no row) other errors bubble
+        if (progressErr?.status && progressErr.status !== 406) {
+          console.warn('Progress fetch error (non-critical):', progressErr);
+        }
+      }
+      try {
+        const { data: itemProgressData } = await supabase
+          .from('skill_path_item_progress')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('skill_path_id', id);
+        itemProgress = itemProgressData || [];
+      } catch (ipErr) {
+        console.warn('Item progress fetch error (non-critical):', ipErr);
+      }
     }
-    
+
     const transformedData = {
       ...skillPath,
       path_items: itemsWithContent,
-      user_progress: userProgress ? [{ ...userProgress, item_progress: itemProgress }] : []
+      user_progress: userProgress ? { ...userProgress, item_progress: itemProgress } : undefined
     };
 
     return { success: true, data: transformedData };
   } catch (error) {
     console.error('Error fetching skill path:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to fetch skill path' };
   }
 };
 
@@ -1243,6 +1258,7 @@ export const createSkillPath = async (skillPath: Partial<SkillPath>) => {
       .from('skill_paths')
       .insert([{
         ...skillPath,
+        tags: (skillPath as any).tags || [],
         created_by: user.user.id
       }])
       .select()
@@ -1252,7 +1268,7 @@ export const createSkillPath = async (skillPath: Partial<SkillPath>) => {
     return { success: true, data };
   } catch (error) {
     console.error('Error creating skill path:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to create skill path' };
   }
 };
 
@@ -1273,15 +1289,18 @@ export const createSkillPathItems = async (skillPathId: string, items: Partial<S
     return { success: true, data };
   } catch (error) {
     console.error('Error creating skill path items:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to create skill path items' };
   }
 };
 
 export const updateSkillPath = async (id: string, skillPath: Partial<SkillPath>) => {
   try {
+    const updatePayload: any = { ...skillPath };
+    if ((skillPath as any).tags) updatePayload.tags = (skillPath as any).tags;
+
     const { data, error } = await supabase
       .from('skill_paths')
-      .update(skillPath)
+      .update(updatePayload)
       .eq('id', id)
       .select()
       .single();
@@ -1290,7 +1309,7 @@ export const updateSkillPath = async (id: string, skillPath: Partial<SkillPath>)
     return { success: true, data };
   } catch (error) {
     console.error('Error updating skill path:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to update skill path' };
   }
 };
 
@@ -1305,7 +1324,7 @@ export const deleteSkillPath = async (id: string) => {
     return { success: true };
   } catch (error) {
     console.error('Error deleting skill path:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to delete skill path' };
   }
 };
 
@@ -1330,6 +1349,6 @@ export const enrollInSkillPath = async (skillPathId: string) => {
     return { success: true, data };
   } catch (error) {
     console.error('Error enrolling in skill path:', error);
-    return { success: false, error: error.message };
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to enroll in skill path' };
   }
 };

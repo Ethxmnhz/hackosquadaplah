@@ -44,8 +44,10 @@ import CreateLabPage from './pages/admin/CreateLabPage';
 import EditLabPage from './pages/admin/EditLabPage';
 import EditChallengePage from './pages/admin/EditChallengePage';
 import OperationsManagementPage from './pages/admin/OperationsManagementPage';
-import SkillPathsManagement from './pages/admin/SkillPathsManagement';
-import CreateSkillPathPage from './pages/admin/CreateSkillPathPage';
+import CreateSkillPathPage from './pages/admin/CreateSkillPathPage'; // legacy create
+import CertificationsManagement from './pages/admin/CertificationsManagement';
+import CreateCertificationPage from './pages/admin/CreateCertificationPage';
+import EditCertificationPage from './pages/admin/EditCertificationPage';
 import LabOperation from './pages/admin/LabOperation';
 import RedVsBlueSessionsAdminPage from './pages/admin/RedVsBlueSessionsAdminPage';
 import AdminDashboardPage from './pages/admin-dashboard/AdminDashboardPage';
@@ -59,6 +61,7 @@ import ProfilePage from './pages/profile/ProfilePage';
 // Error Pages
 import NotFoundPage from './pages/error/NotFoundPage';
 import AccessDenied from './pages/error/AccessDenied';
+import LoadingScreen from './components/ui/LoadingScreen';
 
 function App() {
   const { pathname } = useLocation();
@@ -68,13 +71,7 @@ function App() {
     window.scrollTo(0, 0);
   }, [pathname]);
 
-  if (!isInitialized) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background-dark">
-        <div className="animate-pulse text-primary text-2xl">Loading HackoSquad...</div>
-      </div>
-    );
-  }
+  if (!isInitialized) return <LoadingScreen message="Loading" subMessage="Establishing secure session..." />;
 
   return (
     <>
@@ -128,7 +125,12 @@ function App() {
                 <Route path="/admin/labs/create" element={<CreateLabPage />} />
                 <Route path="/admin/labs/edit/:id" element={<EditLabPage />} />
                 <Route path="/admin/challenges/edit/:id" element={<EditChallengePage />} />
-                <Route path="/admin/skill-paths" element={<SkillPathsManagement />} />
+                {/* New Certifications Routes */}
+                <Route path="/admin/certifications" element={<CertificationsManagement />} />
+                <Route path="/admin/certifications/create" element={<CreateCertificationPage />} />
+                <Route path="/admin/certifications/edit/:id" element={<EditCertificationPage />} />
+                {/* Temporary: redirect old paths to new */}
+                <Route path="/admin/skill-paths" element={<Navigate to="/admin/certifications" replace />} />
                 <Route path="/admin/skill-paths/create" element={<CreateSkillPathPage />} />
                 <Route path="/creator/edit/:id" element={<EditChallengePage />} />
                 <Route path="/admin/operations" element={<OperationsManagementPage />} />

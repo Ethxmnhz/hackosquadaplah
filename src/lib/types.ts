@@ -191,6 +191,35 @@ export interface SkillPath {
   completion_rate?: number;
 }
 
+// Certification feature extension
+export type ExamType = 'challenge_bundle' | 'timed_exam' | 'lab_practical' | 'hybrid';
+export type DeliveryMode = 'proctored' | 'unproctored' | 'auto';
+
+export interface Certification extends SkillPath {
+  // Newly added columns (nullable until populated)
+  code?: string; // unique slug / code e.g. NET-101
+  icon_url?: string;
+  certificate_image_url?: string;
+  exam_type?: ExamType;
+  exam_duration_minutes?: number | null;
+  passing_score_percent?: number | null;
+  max_attempts?: number | null;
+  cooldown_hours_between_attempts?: number | null;
+  validity_period_days?: number | null; // null = lifetime
+  recommended_experience?: string | null;
+  delivery_mode?: DeliveryMode;
+  certificate_title_override?: string | null;
+  certificate_subtitle?: string | null;
+  issuer_name?: string | null;
+  issuer_signature_url?: string | null;
+  metadata_json?: Record<string, any> | null;
+  is_featured?: boolean;
+  tags?: string[];
+}
+
+// Backward compatibility alias (existing code treating SkillPath as Certification)
+export type SkillPathLike = SkillPath | Certification;
+
 export interface SkillPathItem {
   id: string;
   skill_path_id: string;

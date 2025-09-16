@@ -25,8 +25,8 @@ const SkillPathPage = () => {
   const loadSkillPath = async (pathId: string) => {
     setLoading(true);
     const result = await getSkillPath(pathId);
-    if (result.success) {
-      setSkillPath(result.data);
+    if (result.success && result.data) {
+      setSkillPath(result.data as any); // cast to include certification extension fields
     }
     setLoading(false);
   };
@@ -123,8 +123,14 @@ const SkillPathPage = () => {
     );
   }
 
-  const completedItems = skillPath.user_progress?.completed_items.length || 0;
-  const totalItems = skillPath.path_items?.length || 0;
+  // Normalize arrays defensively
+  const learningObjectives = Array.isArray(skillPath.learning_objectives) ? skillPath.learning_objectives : [];
+  const pathItems = Array.isArray(skillPath.path_items) ? skillPath.path_items : [];
+  const prerequisites = Array.isArray(skillPath.prerequisites) ? skillPath.prerequisites : [];
+  const completedItems = Array.isArray(skillPath.user_progress?.completed_items) ? (skillPath.user_progress as any).completed_items.length : 0;
+  const totalItems = pathItems.length;
+  // Access extended certification fields with loose typing (SkillPath | Certification union not fully propagated here)
+  const cert = skillPath as any;
   const progressPercentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
 
   return (
@@ -166,6 +172,16 @@ const SkillPathPage = () => {
                   <span className="px-3 py-1 rounded-full text-sm font-semibold bg-slate-800 text-gray-300 border border-slate-700">
                     {skillPath.category}
                   </span>
+                  {cert.code && (
+                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-indigo-600/20 text-indigo-300 border border-indigo-500/30">
+                      {cert.code}
+                    </span>
+                  )}
+                  {cert.is_featured && (
+                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-pink-600/20 text-pink-300 border border-pink-500/30">
+                      Featured
+                    </span>
+                  )}
                   <div className="flex items-center text-gray-400 text-sm">
                     <Clock className="h-4 w-4 mr-1" />
                     {skillPath.estimated_duration} hours
@@ -179,6 +195,47 @@ const SkillPathPage = () => {
                     {skillPath.enrolled_count || 0} enrolled
                   </div>
                 </div>
+                {/* Certification Meta */}
+                {(cert.exam_type || cert.passing_score_percent || cert.issuer_name) && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    {cert.exam_type && (
+                      <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                        <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Exam Type</p>
+                        <p className="text-sm font-medium text-white capitalize">{String(cert.exam_type).replace('_',' ')}</p>
+                      </div>
+                    )}
+                    {typeof cert.passing_score_percent === 'number' && (
+                      <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                        <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Passing Score</p>
+                        <p className="text-sm font-medium text-white">{cert.passing_score_percent}%</p>
+                      </div>
+                    )}
+                    {cert.validity_period_days !== undefined && cert.validity_period_days !== null && (
+                      <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                        <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Validity</p>
+                        <p className="text-sm font-medium text-white">{cert.validity_period_days === 0 ? 'Lifetime' : `${cert.validity_period_days} days`}</p>
+                      </div>
+                    )}
+                    {cert.delivery_mode && (
+                      <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                        <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Delivery</p>
+                        <p className="text-sm font-medium text-white capitalize">{cert.delivery_mode}</p>
+                      </div>
+                    )}
+                    {cert.max_attempts && (
+                      <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                        <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Attempts</p>
+                        <p className="text-sm font-medium text-white">Up to {cert.max_attempts}</p>
+                      </div>
+                    )}
+                    {cert.cooldown_hours_between_attempts && (
+                      <div className="p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
+                        <p className="text-xs uppercase tracking-wide text-gray-500 mb-1">Cooldown</p>
+                        <p className="text-sm font-medium text-white">{cert.cooldown_hours_between_attempts}h between attempts</p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Progress */}
                 {skillPath.user_progress && (
@@ -195,7 +252,7 @@ const SkillPathPage = () => {
                     </div>
                     <div className="flex items-center justify-between text-sm text-gray-400 mt-2">
                       <span>{Math.round(progressPercentage)}% complete</span>
-                      <span>{skillPath.user_progress.total_points_earned} points earned</span>
+                      <span>{skillPath.user_progress.total_points_earned || 0} points earned</span>
                     </div>
                   </div>
                 )}
@@ -228,9 +285,7 @@ const SkillPathPage = () => {
                   ) : (
                     <button
                       onClick={() => {
-                        const nextItem = skillPath.path_items?.find(item => 
-                          !isItemCompleted(item.id) && isItemUnlocked(item)
-                        );
+                        const nextItem = pathItems.find(item => !isItemCompleted(item.id) && isItemUnlocked(item));
                         if (nextItem) handleItemClick(nextItem);
                       }}
                       className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center"
@@ -292,7 +347,7 @@ const SkillPathPage = () => {
                     className="mt-4"
                   >
                     <ul className="space-y-2">
-                      {skillPath.learning_objectives.map((objective, index) => (
+                      {learningObjectives.map((objective, index) => (
                         <li key={index} className="flex items-start text-gray-300">
                           <CheckCircle className="h-4 w-4 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
                           <span>{objective}</span>
@@ -308,11 +363,11 @@ const SkillPathPage = () => {
             <Card className="p-6">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center">
                 <Target className="h-5 w-5 mr-2 text-red-400" />
-                Learning Path ({skillPath.path_items?.length || 0} items)
+                Learning Path ({pathItems.length} items)
               </h2>
 
               <div className="space-y-4">
-                {skillPath.path_items?.map((item, index) => {
+                {pathItems.map((item, index) => {
                   const status = getItemStatus(item);
                   const isCompleted = status === 'completed';
                   const isLocked = status === 'locked';
@@ -384,14 +439,14 @@ const SkillPathPage = () => {
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
             {/* Prerequisites */}
-            {skillPath.prerequisites && skillPath.prerequisites.length > 0 && (
+            {prerequisites.length > 0 && (
               <Card className="p-6">
                 <h3 className="font-semibold text-white mb-4 flex items-center">
                   <AlertTriangle className="h-4 w-4 mr-2 text-yellow-400" />
                   Prerequisites
                 </h3>
                 <ul className="space-y-2">
-                  {skillPath.prerequisites.map((prereq, index) => (
+                  {prerequisites.map((prereq, index) => (
                     <li key={index} className="text-sm text-gray-400 flex items-start">
                       <div className="w-1 h-1 rounded-full bg-gray-500 mr-2 mt-2 flex-shrink-0"></div>
                       {prereq}

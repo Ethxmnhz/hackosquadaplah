@@ -405,7 +405,7 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
         {!isMinimized ? (
           <div className="w-full flex items-center justify-center">
             <NavLink to="/dashboard" className="focus:outline-none focus:ring-2 focus:ring-red-500/50 rounded-md inline-flex" aria-label="Go to dashboard">
-              <AnimatedLogo size="lg" intensity="minimal" />
+              <AnimatedLogo size="lg" intensity="minimal" static />
             </NavLink>
           </div>
         ) : (
