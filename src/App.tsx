@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 
@@ -14,53 +14,53 @@ import DashboardLayout from './components/layouts/DashboardLayout';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 
-// Dashboard Pages
-import DashboardPage from './pages/dashboard/DashboardPage';
-import ChallengesPage from './pages/challenges/ChallengesPage';
-import ChallengePage from './pages/challenges/ChallengePage';
-import LabsPage from './pages/labs/LabsPage';
-import LabPage from './pages/labs/LabPage';
-import ThreatIntelligencePage from './pages/dashboard/ThreatIntelligencePage';
-import CertificationsPage from './pages/certifications/CertificationsPage';
-import SkillPathPage from './pages/skillpaths/SkillPathPage';
+// Dashboard Pages (lazy-loaded for performance)
+const DashboardPage = lazy(() => import('./pages/dashboard/DashboardPage'));
+const ChallengesPage = lazy(() => import('./pages/challenges/ChallengesPage'));
+const ChallengePage = lazy(() => import('./pages/challenges/ChallengePage'));
+const LabsPage = lazy(() => import('./pages/labs/LabsPage'));
+const LabPage = lazy(() => import('./pages/labs/LabPage'));
+const ThreatIntelligencePage = lazy(() => import('./pages/dashboard/ThreatIntelligencePage'));
+const CertificationsPage = lazy(() => import('./pages/certifications/CertificationsPage'));
+const SkillPathPage = lazy(() => import('./pages/skillpaths/SkillPathPage'));
 
-// Team Pages
-import OperationDetailsPage from './pages/redvsblue/OperationDetailsPage';
-import LabInterfacePage from './pages/redvsblue/LabInterfacePage';
+// Team Pages (lazy)
+const OperationDetailsPage = lazy(() => import('./pages/redvsblue/OperationDetailsPage'));
+const LabInterfacePage = lazy(() => import('./pages/redvsblue/LabInterfacePage'));
 
-// Operations Pages
-import OperationsPage from './pages/operations/OperationsPage';
-import ArenaPage from './pages/operations/ArenaPage';
-import OperationSessionPage from './pages/operations/SessionPage';
+// Operations Pages (lazy)
+const OperationsPage = lazy(() => import('./pages/operations/OperationsPage'));
+const ArenaPage = lazy(() => import('./pages/operations/ArenaPage'));
+const OperationSessionPage = lazy(() => import('./pages/operations/SessionPage'));
 
-// Creator Pages
-import CreateChallengePage from './pages/creator/CreateChallengePage';
-import ManageChallengesPage from './pages/creator/ManageChallengesPage';
+// Creator Pages (lazy)
+const CreateChallengePage = lazy(() => import('./pages/creator/CreateChallengePage'));
+const ManageChallengesPage = lazy(() => import('./pages/creator/ManageChallengesPage'));
 
-// Admin Pages
-import AdminDashboard from './pages/admin/AdminDashboard';
-import LabsManagement from './pages/admin/LabsManagement';
-import CreateLabPage from './pages/admin/CreateLabPage';
-import EditLabPage from './pages/admin/EditLabPage';
-import EditChallengePage from './pages/admin/EditChallengePage';
-import OperationsManagementPage from './pages/admin/OperationsManagementPage';
-import CreateSkillPathPage from './pages/admin/CreateSkillPathPage'; // legacy create
-import CertificationsManagement from './pages/admin/CertificationsManagement';
-import CreateCertificationPage from './pages/admin/CreateCertificationPage';
-import EditCertificationPage from './pages/admin/EditCertificationPage';
-import LabOperation from './pages/admin/LabOperation';
-import RedVsBlueSessionsAdminPage from './pages/admin/RedVsBlueSessionsAdminPage';
-import AdminDashboardPage from './pages/admin-dashboard/AdminDashboardPage';
+// Admin Pages (lazy)
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const LabsManagement = lazy(() => import('./pages/admin/LabsManagement'));
+const CreateLabPage = lazy(() => import('./pages/admin/CreateLabPage'));
+const EditLabPage = lazy(() => import('./pages/admin/EditLabPage'));
+const EditChallengePage = lazy(() => import('./pages/admin/EditChallengePage'));
+const OperationsManagementPage = lazy(() => import('./pages/admin/OperationsManagementPage'));
+const CreateSkillPathPage = lazy(() => import('./pages/admin/CreateSkillPathPage')); // legacy create
+const CertificationsManagement = lazy(() => import('./pages/admin/CertificationsManagement'));
+const CreateCertificationPage = lazy(() => import('./pages/admin/CreateCertificationPage'));
+const EditCertificationPage = lazy(() => import('./pages/admin/EditCertificationPage'));
+const LabOperation = lazy(() => import('./pages/admin/LabOperation'));
+const RedVsBlueSessionsAdminPage = lazy(() => import('./pages/admin/RedVsBlueSessionsAdminPage'));
+const AdminDashboardPage = lazy(() => import('./pages/admin-dashboard/AdminDashboardPage'));
 
-// Leaderboard Page
-import LeaderboardPage from './pages/leaderboard/LeaderboardPage';
+// Leaderboard Page (lazy)
+const LeaderboardPage = lazy(() => import('./pages/leaderboard/LeaderboardPage'));
 
-// Profile Page
-import ProfilePage from './pages/profile/ProfilePage';
+// Profile Page (lazy)
+const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 
-// Error Pages
-import NotFoundPage from './pages/error/NotFoundPage';
-import AccessDenied from './pages/error/AccessDenied';
+// Error Pages (lazy)
+const NotFoundPage = lazy(() => import('./pages/error/NotFoundPage'));
+const AccessDenied = lazy(() => import('./pages/error/AccessDenied'));
 import LoadingScreen from './components/ui/LoadingScreen';
 
 function App() {
@@ -76,6 +76,7 @@ function App() {
   return (
     <>
       <AnimatePresence mode="wait">
+        <Suspense fallback={<LoadingScreen message="Loading" subMessage="Fetching resources..." /> }>
         <Routes>
           {/* Auth Routes */}
           <Route element={<GuestGuard />}>
@@ -149,6 +150,7 @@ function App() {
           {/* 404 Route */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        </Suspense>
       </AnimatePresence>
     </>
   );

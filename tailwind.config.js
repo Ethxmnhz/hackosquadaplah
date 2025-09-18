@@ -1,6 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  safelist: [
+    // gradients and borders used via template strings
+    { pattern: /bg-gradient-to-(r|br|tr)/ },
+    { pattern: /from-(red|blue|purple|yellow|slate|fuchsia|cyan|emerald|indigo|amber)-\d{1,3}(\/\d+)?/ },
+    { pattern: /via-(red|blue|purple|yellow|slate|fuchsia|cyan|emerald|indigo|amber)-\d{1,3}(\/\d+)?/ },
+    { pattern: /to-(red|blue|purple|yellow|slate|fuchsia|cyan|emerald|indigo|amber)-\d{1,3}(\/\d+)?/ },
+    { pattern: /border-(primary|red|blue|purple|yellow|slate|emerald)-\d{1,3}(\/\d+)?/ },
+    { pattern: /text-(primary|red|blue|purple|yellow|slate|emerald)-\d{1,3}(\/\d+)?/ },
+    { pattern: /bg-background-(dark|default|light)/ },
+    { pattern: /backdrop-blur(-sm|)/ }
+  ],
   theme: {
     extend: {
       colors: {

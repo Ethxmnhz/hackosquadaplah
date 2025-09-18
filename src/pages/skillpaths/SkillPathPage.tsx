@@ -438,6 +438,50 @@ const SkillPathPage = () => {
 
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-6">
+            {/* Certificate Preview */}
+            {(() => { const cert: any = skillPath; const passing = typeof cert.passing_score_percent === 'number' ? cert.passing_score_percent : 75; return (
+              <Card className="p-6">
+                <h3 className="font-semibold text-white mb-4 flex items-center">
+                  <Award className="h-4 w-4 mr-2 text-indigo-400" />
+                  Certificate Preview
+                </h3>
+                <div className="rounded-lg overflow-hidden border border-slate-700/60 bg-slate-800/40">
+                  {cert.certificate_image_url ? (
+                    <img src={cert.certificate_image_url} alt="Certificate preview" className="w-full h-40 object-cover" />
+                  ) : cert.cover_image ? (
+                    <img src={cert.cover_image} alt="Certificate preview" className="w-full h-40 object-cover" />
+                  ) : (
+                    <div className="w-full h-40 flex items-center justify-center bg-slate-800">
+                      <Award className="h-10 w-10 text-slate-500" />
+                    </div>
+                  )}
+                </div>
+                {cert.code && (
+                  <div className="mt-3 inline-flex items-center gap-2 px-2 py-1 rounded bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 text-xs font-semibold tracking-wide">
+                    <span>Code:</span>
+                    <span>{cert.code}</span>
+                  </div>
+                )}
+                <div className="mt-4 text-sm text-gray-300 bg-slate-800/50 border border-slate-700/60 rounded-lg p-3">
+                  <p className="flex items-start gap-2">
+                    <Shield className="h-4 w-4 text-indigo-400 mt-0.5" />
+                    <span>Complete all required modules and pass the final exam with at least {passing}% to earn your certificate.</span>
+                  </p>
+                </div>
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-1 text-xs text-gray-400">
+                    <span>Overall Progress</span>
+                    <span className="text-white">{Math.round(progressPercentage)}%</span>
+                  </div>
+                  <div className="w-full bg-slate-800 rounded-full h-2">
+                    <div
+                      className="bg-gradient-to-r from-red-500 to-red-600 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${progressPercentage}%` }}
+                    />
+                  </div>
+                </div>
+              </Card>
+            ); })()}
             {/* Prerequisites */}
             {prerequisites.length > 0 && (
               <Card className="p-6">

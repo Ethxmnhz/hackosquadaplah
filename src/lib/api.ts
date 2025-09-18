@@ -279,6 +279,13 @@ export const submitChallengeAnswer = async (challengeId: string, questionId: str
               });
 
             console.log('✅ Challenge marked as completed');
+
+            // Also mark this challenge as completed in any skill paths that include it
+            try {
+              await markAllPathsContainingItemAsCompleted('challenge', challengeId, totalPointsFromStructure);
+            } catch (spErr) {
+              console.warn('Failed to update skill path progress for challenge completion:', spErr);
+            }
           }
 
           console.log('=== ANSWER SUBMISSION END ===');
@@ -669,6 +676,13 @@ export const submitChallenge = async (challengeId: string, answers: Record<strin
         // Continue execution even if completion recording fails
       }
 
+      // Reflect completion into any skill paths that contain this challenge
+      try {
+        await markAllPathsContainingItemAsCompleted('challenge', challengeId, totalPoints);
+      } catch (spErr) {
+        console.warn('Failed to update skill path progress for challenge submission:', spErr);
+      }
+
       // Add points for each correct answer
       for (const question of questions) {
         if (answers[question.id]?.toLowerCase() === question.flag.toLowerCase()) {
@@ -970,6 +984,13 @@ export const submitLabAnswers = async (labId: string, answers: Record<string, st
       } catch (error) {
         console.error('Error recording lab completion:', error);
         // Continue execution even if completion recording fails
+      }
+
+      // Reflect completion into any skill paths that contain this lab
+      try {
+        await markAllPathsContainingItemAsCompleted('lab', labId, totalPoints);
+      } catch (spErr) {
+        console.warn('Failed to update skill path progress for lab submission:', spErr);
       }
 
       // Add points
@@ -1338,9 +1359,9 @@ export const enrollInSkillPath = async (skillPathId: string) => {
       .insert({
         user_id: user.user.id,
         skill_path_id: skillPathId,
-        current_item_index: 0,
-        progress_percentage: 0,
-        started_at: new Date().toISOString()
+          status: 'enrolled',
+          progress_percentage: 0,
+          enrolled_at: new Date().toISOString()
       })
       .select()
       .single();
@@ -1350,5 +1371,164 @@ export const enrollInSkillPath = async (skillPathId: string) => {
   } catch (error) {
     console.error('Error enrolling in skill path:', error);
     return { success: false, error: error instanceof Error ? error.message : 'Failed to enroll in skill path' };
+  }
+};
+
+// Ensure there's a progress row for the current user and given skill path
+export const ensureSkillPathEnrollment = async (skillPathId: string) => {
+  const { data: user } = await supabase.auth.getUser();
+  if (!user.user) throw new Error('Not authenticated');
+
+  // Try get existing
+  const { data: existing } = await supabase
+    .from('skill_path_progress')
+    .select('*')
+    .eq('user_id', user.user.id)
+    .eq('skill_path_id', skillPathId)
+    .maybeSingle();
+
+  if (existing) return existing;
+
+  // Otherwise enroll
+  const enroll = await enrollInSkillPath(skillPathId);
+  if (!enroll.success) throw new Error(enroll.error || 'Failed to enroll');
+  return enroll.data;
+};
+
+// Recompute aggregate progress for a skill path (completed items, points, percentage, status)
+export const recomputeSkillPathProgress = async (skillPathId: string) => {
+  try {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error('Not authenticated');
+
+    // Ensure we have a progress row
+    await ensureSkillPathEnrollment(skillPathId);
+
+    // Fetch path items (need both path item id and content id)
+    const { data: pathItems, error: itemsErr } = await supabase
+      .from('skill_path_items')
+      .select('id, item_id, item_type, is_required, order_index')
+      .eq('skill_path_id', skillPathId)
+      .order('order_index', { ascending: true });
+    if (itemsErr) throw itemsErr;
+
+    const totalItems = (pathItems || []).length;
+
+    // Fetch item progress rows
+    const { data: itemProgress, error: ipErr } = await supabase
+      .from('skill_path_item_progress')
+      .select('item_id, points_earned, completed_at')
+      .eq('user_id', user.user.id)
+      .eq('skill_path_id', skillPathId);
+    if (ipErr) throw ipErr;
+
+    // Build sets and aggregates
+    const progressByContentId = new Map<string, { points_earned: number; completed: boolean }>();
+    (itemProgress || []).forEach(row => {
+      progressByContentId.set(String(row.item_id), {
+        points_earned: row.points_earned || 0,
+        completed: !!row.completed_at
+      });
+    });
+
+    const completedPathItemIds: string[] = [];
+    let totalPoints = 0;
+
+    (pathItems || []).forEach(pi => {
+      const p = progressByContentId.get(String(pi.item_id));
+      if (p?.completed) {
+        completedPathItemIds.push(String(pi.id));
+        totalPoints += p.points_earned || 0;
+      }
+    });
+
+    const progressPct = totalItems > 0 ? (completedPathItemIds.length / totalItems) * 100 : 0;
+    const status = progressPct >= 100 ? 'completed' : (progressPct > 0 ? 'in_progress' : 'enrolled');
+
+    // Determine next current item (first not completed by path order)
+    const nextItem = (pathItems || []).find(pi => !completedPathItemIds.includes(String(pi.id)));
+    const current_item_id = nextItem ? nextItem.id : null;
+
+    // Update aggregate row
+    const { data: updated, error: updErr } = await supabase
+      .from('skill_path_progress')
+      .update({
+        completed_items: completedPathItemIds,
+        total_points_earned: totalPoints,
+        progress_percentage: Math.round(progressPct * 100) / 100,
+        status,
+        current_item_id
+      })
+      .eq('user_id', user.user.id)
+      .eq('skill_path_id', skillPathId)
+      .select()
+      .maybeSingle();
+    if (updErr) throw updErr;
+
+    return { success: true, data: updated };
+  } catch (error) {
+    console.error('Error recomputing skill path progress:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to recompute progress' };
+  }
+};
+
+// Mark a specific item as completed within a skill path, upserting item progress and recomputing aggregate progress
+export const markSkillPathItemCompleted = async (
+  skillPathId: string,
+  itemId: string, // content id (challenge or lab id)
+  itemType: 'challenge' | 'lab',
+  pointsEarned: number = 0
+) => {
+  try {
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) throw new Error('Not authenticated');
+
+    await ensureSkillPathEnrollment(skillPathId);
+
+    // Upsert item progress for this item
+    const { error: upsertErr } = await supabase
+      .from('skill_path_item_progress')
+      .upsert({
+        user_id: user.user.id,
+        skill_path_id: skillPathId,
+        item_id: itemId,
+        item_type: itemType,
+        completed_at: new Date().toISOString(),
+        points_earned: pointsEarned,
+        attempts: 1
+      }, { onConflict: 'user_id,skill_path_id,item_id' });
+    if (upsertErr) throw upsertErr;
+
+    // Recompute aggregate
+    return await recomputeSkillPathProgress(skillPathId);
+  } catch (error) {
+    console.error('Error marking skill path item completed:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to update item completion' };
+  }
+};
+
+// Helper: find all skill paths that include the given item and mark completion in each
+export const markAllPathsContainingItemAsCompleted = async (
+  itemType: 'challenge' | 'lab',
+  itemId: string,
+  pointsEarned: number = 0
+) => {
+  try {
+    // Find all skill_path_ids that contain this item
+    const { data: containers, error: findErr } = await supabase
+      .from('skill_path_items')
+      .select('skill_path_id')
+      .eq('item_type', itemType)
+      .eq('item_id', itemId);
+    if (findErr) throw findErr;
+
+    const uniquePathIds = Array.from(new Set((containers || []).map(c => c.skill_path_id))).filter(Boolean) as string[];
+    for (const pathId of uniquePathIds) {
+      await markSkillPathItemCompleted(pathId, itemId, itemType, pointsEarned);
+    }
+    return { success: true, data: { updated_paths: uniquePathIds.length } };
+  } catch (error) {
+    console.error('Error marking item completed across all skill paths:', error);
+    return { success: false, error: error instanceof Error ? error.message : 'Failed to mark item in skill paths' };
   }
 };

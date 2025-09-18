@@ -1,18 +1,17 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  User, Settings, Trophy, Flag, Shield, Users, 
-  Calendar, Clock, Star, Award, Target, Activity,
-  Edit2, Save, X, Eye, EyeOff, Mail, Lock,
-  Bell, Globe, Palette, Volume2, VolumeX,
-  Download, Upload, Camera, Check, AlertTriangle,
+import {
+  User, Settings, Trophy, Flag, Shield, Users,
+  Calendar, Star, Target,
+  Edit2, Save, X, Lock,
+  Check, AlertTriangle,
   Flame, Crown, Zap, BookOpen, Code, Terminal,
   Github, Twitter, Linkedin, ExternalLink,
-  ChevronRight, TrendingUp, BarChart3, PieChart,
-  MapPin, Phone, Link as LinkIcon, Copy,
-  Trash2, Plus, Minus, RefreshCw, Share2
+  MapPin, Link as LinkIcon,
+  Share2
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
+import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import Card from '../../components/ui/Card';
 
@@ -64,48 +63,18 @@ interface Badge {
   earned_at: string;
 }
 
-interface Achievement {
-  id: string;
-  name: string;
-  description: string;
-  icon_class: string;
-  category: string;
-  target_value: number;
-  progress: number;
-  completed: boolean;
-  completed_at?: string;
-}
-
-interface UserSettings {
-  notifications_email: boolean;
-  notifications_push: boolean;
-  notifications_challenges: boolean;
-  notifications_teams: boolean;
-  notifications_operations: boolean;
-  theme: 'dark' | 'light' | 'auto';
-  language: string;
-  timezone: string;
-  privacy_profile: 'public' | 'private' | 'friends';
-  privacy_stats: 'public' | 'private' | 'friends';
-  privacy_activity: 'public' | 'private' | 'friends';
-  sound_effects: boolean;
-  auto_save: boolean;
-  show_hints: boolean;
-}
+// Removed mock Achievements and Settings interfaces; we only keep real, backed data.
 
 const ProfilePage = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'stats' | 'badges' | 'achievements' | 'activity' | 'settings'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'settings'>('overview');
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [badges, setBadges] = useState<Badge[]>([]);
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [settings, setSettings] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Partial<UserProfile>>({});
-  const [editedSettings, setEditedSettings] = useState<Partial<UserSettings>>({});
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [passwordData, setPasswordData] = useState({
     current: '',
@@ -130,9 +99,7 @@ const ProfilePage = () => {
       await Promise.all([
         loadProfile(),
         loadStats(),
-        loadBadges(),
-        loadAchievements(),
-        loadSettings()
+        loadBadges()
       ]);
     } catch (error) {
       console.error('Error loading profile data:', error);
@@ -247,74 +214,15 @@ const ProfilePage = () => {
 
     if (error) throw error;
 
-    const badgesData = data?.map(item => ({
-      ...item.badges,
-      earned_at: item.earned_at
-    })) || [];
+    const badgesData: Badge[] = (data || []).map((item: any) => ({
+      ...(item?.badges || {}),
+      earned_at: item?.earned_at
+    })) as Badge[];
 
-    setBadges(badgesData);
+    setBadges(badgesData as Badge[]);
   };
 
-  const loadAchievements = async () => {
-    // Mock achievements data
-    const mockAchievements: Achievement[] = [
-      {
-        id: '1',
-        name: 'First Blood',
-        description: 'Complete your first challenge',
-        icon_class: 'flag',
-        category: 'challenges',
-        target_value: 1,
-        progress: stats?.challenges_completed || 0,
-        completed: (stats?.challenges_completed || 0) >= 1
-      },
-      {
-        id: '2',
-        name: 'Point Collector',
-        description: 'Earn 1000 points',
-        icon_class: 'trophy',
-        category: 'points',
-        target_value: 1000,
-        progress: stats?.total_points || 0,
-        completed: (stats?.total_points || 0) >= 1000
-      },
-      {
-        id: '3',
-        name: 'Lab Rat',
-        description: 'Complete 10 labs',
-        icon_class: 'flask-conical',
-        category: 'labs',
-        target_value: 10,
-        progress: stats?.labs_completed || 0,
-        completed: (stats?.labs_completed || 0) >= 10
-      }
-    ];
-
-    setAchievements(mockAchievements);
-  };
-
-  const loadSettings = async () => {
-    // Mock settings - in real app would come from user_settings table
-    const mockSettings: UserSettings = {
-      notifications_email: true,
-      notifications_push: true,
-      notifications_challenges: true,
-      notifications_teams: true,
-      notifications_operations: false,
-      theme: 'dark',
-      language: 'en',
-      timezone: 'UTC',
-      privacy_profile: 'public',
-      privacy_stats: 'public',
-      privacy_activity: 'public',
-      sound_effects: true,
-      auto_save: true,
-      show_hints: true
-    };
-
-    setSettings(mockSettings);
-    setEditedSettings(mockSettings);
-  };
+  // Removed achievements and settings loaders (were mock-only)
 
   const handleSaveProfile = async () => {
     if (!user || !editedProfile) return;
@@ -460,112 +368,122 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
+    <div className="min-h-screen bg-gradient-to-br from-[#0A030F] via-background-dark to-[#181024] text-white relative overflow-hidden">
+      {/* subtle page background accents */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(127,90,240,0.12),transparent_60%)]" />
+      <div className="pointer-events-none absolute -top-24 -left-24 h-80 w-80 rounded-full bg-red-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-24 -right-24 h-96 w-96 rounded-full bg-blue-500/10 blur-3xl" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Hero Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="mb-8"
+        className="mb-10"
       >
-        <Card className="p-8 border border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div className="flex items-center gap-6">
-              {/* Avatar */}
-              <div className="relative">
-                {profile.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt={profile.username}
-                    className="w-24 h-24 rounded-full border-4 border-primary/30"
-                  />
-                ) : (
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary-dark flex items-center justify-center border-4 border-primary/30">
-                    <span className="text-3xl font-bold text-white">
-                      {profile.username.slice(0, 2).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                <div className="absolute -bottom-2 -right-2 bg-background-dark rounded-full p-1">
-                  {getRankIcon(stats.rank_title)}
-                </div>
-              </div>
-
-              {/* User Info */}
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <h1 className="text-3xl font-bold text-white">{profile.username}</h1>
-                  <span className="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium">
-                    {stats.rank_title}
-                  </span>
-                </div>
-                {profile.full_name && (
-                  <p className="text-xl text-gray-300 mb-1">{profile.full_name}</p>
-                )}
-                {profile.bio && (
-                  <p className="text-gray-400 mb-2">{profile.bio}</p>
-                )}
-                <div className="flex items-center gap-4 text-sm text-gray-400">
-                  {profile.location && (
-                    <div className="flex items-center">
-                      <MapPin className="h-4 w-4 mr-1" />
-                      {profile.location}
+        <div className="relative overflow-hidden rounded-2xl border border-white/10">
+          {/* Soft gradient background with subtle glow */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-fuchsia-500/10 to-purple-500/10" />
+          <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl opacity-40" />
+          <div className="relative p-6 md:p-8">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+              <div className="flex items-center gap-6">
+                {/* Avatar */}
+                <div className="relative">
+                  {profile.avatar_url ? (
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile.username}
+                      className="w-24 h-24 md:w-28 md:h-28 rounded-full ring-4 ring-white/10 object-cover"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center ring-4 ring-white/10">
+                      <span className="text-3xl font-bold text-white">
+                        {profile.username.slice(0, 2).toUpperCase()}
+                      </span>
                     </div>
                   )}
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    Joined {new Date(profile.created_at).toLocaleDateString()}
+                  <div className="absolute -bottom-2 -right-2 rounded-full p-1.5 bg-black/60 backdrop-blur border border-white/10">
+                    {getRankIcon(stats.rank_title)}
                   </div>
-                  <div className="flex items-center">
-                    <Trophy className="h-4 w-4 mr-1" />
-                    Rank #{stats.rank_position}
+                </div>
+                {/* User Info */}
+                <div>
+                  <div className="flex flex-wrap items-center gap-3 mb-2">
+                    <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{profile.username}</h1>
+                    <span className="px-3 py-1 rounded-full text-xs md:text-sm font-medium bg-black/40 border border-white/10 text-white/90 backdrop-blur">
+                      {stats.rank_title}
+                    </span>
+                  </div>
+                  {profile.full_name && (
+                    <p className="text-base md:text-lg text-white/80 mb-1">{profile.full_name}</p>
+                  )}
+                  {profile.bio && (
+                    <p className="text-white/70 mb-2 max-w-2xl">{profile.bio}</p>
+                  )}
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-white/60">
+                    {profile.location && (
+                      <div className="flex items-center">
+                        <MapPin className="h-4 w-4 mr-1" />
+                        {profile.location}
+                      </div>
+                    )}
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      Joined {new Date(profile.created_at).toLocaleDateString()}
+                    </div>
+                    <div className="flex items-center">
+                      <Trophy className="h-4 w-4 mr-1" />
+                      Rank #{stats.rank_position}
+                    </div>
                   </div>
                 </div>
               </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleCopyProfile}
+                  className="inline-flex items-center justify-center rounded-lg border border-white/10 bg-black/40 px-4 py-2 text-sm font-medium text-white hover:bg-black/60 transition-colors backdrop-blur"
+                >
+                  {copied ? <Check className="h-4 w-4 mr-2" /> : <Share2 className="h-4 w-4 mr-2" />}
+                  {copied ? 'Copied!' : 'Share Profile'}
+                </button>
+                <button
+                  onClick={() => setEditMode(!editMode)}
+                  className="inline-flex items-center justify-center rounded-lg bg-primary/90 hover:bg-primary px-4 py-2 text-sm font-medium text-white transition-colors"
+                >
+                  <Edit2 className="h-4 w-4 mr-2" />
+                  {editMode ? 'Cancel Edit' : 'Edit Profile'}
+                </button>
+              </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={handleCopyProfile}
-                className="btn-outline flex items-center"
-              >
-                {copied ? <Check className="h-4 w-4 mr-2" /> : <Share2 className="h-4 w-4 mr-2" />}
-                {copied ? 'Copied!' : 'Share Profile'}
-              </button>
-              <button
-                onClick={() => setEditMode(!editMode)}
-                className="btn-primary flex items-center"
-              >
-                <Edit2 className="h-4 w-4 mr-2" />
-                {editMode ? 'Cancel Edit' : 'Edit Profile'}
-              </button>
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-6">
+              {[
+                { label: 'Points', value: stats.total_points, icon: Star },
+                { label: 'Challenges', value: stats.challenges_completed, icon: Flag },
+                { label: 'Labs', value: stats.labs_completed, icon: Terminal },
+                { label: 'Badges', value: stats.badges_earned, icon: Shield }
+              ].map((s) => (
+                <div key={s.label} className="flex items-center gap-3 rounded-xl border border-white/10 bg-black/30 backdrop-blur px-3 py-3">
+                  <div className="rounded-md bg-white/10 text-white p-2 border border-white/10">
+                    <s.icon className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <div className="text-white font-semibold leading-tight">{s.value}</div>
+                    <div className="text-xs text-white/60">{s.label}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
+        </div>
+  </motion.div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
-            <div className="text-center p-4 bg-background-light/50 rounded-lg">
-              <div className="text-2xl font-bold text-white">{stats.total_points}</div>
-              <div className="text-sm text-gray-400">Total Points</div>
-            </div>
-            <div className="text-center p-4 bg-background-light/50 rounded-lg">
-              <div className="text-2xl font-bold text-white">{stats.challenges_completed}</div>
-              <div className="text-sm text-gray-400">Challenges</div>
-            </div>
-            <div className="text-center p-4 bg-background-light/50 rounded-lg">
-              <div className="text-2xl font-bold text-white">{stats.labs_completed}</div>
-              <div className="text-sm text-gray-400">Labs</div>
-            </div>
-            <div className="text-center p-4 bg-background-light/50 rounded-lg">
-              <div className="text-2xl font-bold text-white">{stats.badges_earned}</div>
-              <div className="text-sm text-gray-400">Badges</div>
-            </div>
-          </div>
-        </Card>
-      </motion.div>
-
-      {/* Navigation Tabs */}
+  {/* Navigation Tabs (only real tabs remain) */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -575,15 +493,11 @@ const ProfilePage = () => {
         <div className="flex space-x-8 border-b border-background-light">
           {[
             { id: 'overview', label: 'Overview', icon: User },
-            { id: 'stats', label: 'Statistics', icon: BarChart3 },
-            { id: 'badges', label: 'Badges', icon: Award },
-            { id: 'achievements', label: 'Achievements', icon: Target },
-            { id: 'activity', label: 'Activity', icon: Activity },
             { id: 'settings', label: 'Settings', icon: Settings }
           ].map(tab => (
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              key={tab.id as 'overview' | 'settings'}
+              onClick={() => setActiveTab(tab.id as 'overview' | 'settings')}
               className={`flex items-center px-4 py-4 border-b-2 font-medium transition-colors ${
                 activeTab === tab.id
                   ? 'border-primary text-primary'
@@ -893,66 +807,35 @@ const ProfilePage = () => {
                 </div>
               </Card>
 
-              {/* Recent Activity */}
-              <Card className="p-6">
-                <h2 className="text-2xl font-bold text-white mb-6">Recent Activity</h2>
-                <div className="space-y-4">
-                  <div className="flex items-center p-4 bg-background-light rounded-lg">
-                    <Flag className="h-5 w-5 text-primary mr-3" />
-                    <div>
-                      <p className="text-white">Completed "SQL Injection Basics"</p>
-                      <p className="text-sm text-gray-400">2 hours ago • +150 points</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-4 bg-background-light rounded-lg">
-                    <Award className="h-5 w-5 text-accent-blue mr-3" />
-                    <div>
-                      <p className="text-white">Earned "Web Warrior" badge</p>
-                      <p className="text-sm text-gray-400">1 day ago</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center p-4 bg-background-light rounded-lg">
-                    <Users className="h-5 w-5 text-accent-green mr-3" />
-                    <div>
-                      <p className="text-white">Joined "Elite Hackers" team</p>
-                      <p className="text-sm text-gray-400">3 days ago</p>
-                    </div>
-                  </div>
-                </div>
-              </Card>
+              {/* Removed Recent Activity (was static/dummy). Consider wiring real activity later. */}
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Progress Card */}
+              {/* Quick Actions */}
               <Card className="p-6">
-                <h3 className="text-lg font-bold text-white mb-4">Progress Overview</h3>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-gray-400">Next Rank: Elite</span>
-                      <span className="text-white">{stats.total_points}/1500</span>
-                    </div>
-                    <div className="w-full bg-background-light rounded-full h-2">
-                      <div 
-                        className="bg-primary h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${(stats.total_points / 1500) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-3 bg-background-light rounded-lg">
-                      <Flame className="h-6 w-6 text-orange-400 mx-auto mb-1" />
-                      <div className="text-lg font-bold text-white">{stats.streak_days}</div>
-                      <div className="text-xs text-gray-400">Day Streak</div>
-                    </div>
-                    <div className="text-center p-3 bg-background-light rounded-lg">
-                      <Clock className="h-6 w-6 text-accent-blue mx-auto mb-1" />
-                      <div className="text-lg font-bold text-white">{Math.floor(stats.total_time_spent / 60)}h</div>
-                      <div className="text-xs text-gray-400">Time Spent</div>
-                    </div>
-                  </div>
+                <h3 className="text-lg font-bold text-white mb-4">Quick Actions</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <Link to="/challenges" className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/30 hover:bg-black/50 transition-colors px-3 py-2">
+                    <Flag className="h-4 w-4 text-red-400" />
+                    <span>Challenges</span>
+                  </Link>
+                  <Link to="/labs" className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/30 hover:bg-black/50 transition-colors px-3 py-2">
+                    <Terminal className="h-4 w-4 text-blue-400" />
+                    <span>Labs</span>
+                  </Link>
+                  <Link to="/skill-paths" className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/30 hover:bg-black/50 transition-colors px-3 py-2">
+                    <BookOpen className="h-4 w-4 text-purple-400" />
+                    <span>Skill Paths</span>
+                  </Link>
+                  <Link to="/certifications" className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/30 hover:bg-black/50 transition-colors px-3 py-2">
+                    <Shield className="h-4 w-4 text-emerald-400" />
+                    <span>Certifications</span>
+                  </Link>
+                  <Link to="/leaderboard" className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/30 hover:bg-black/50 transition-colors px-3 py-2 col-span-2">
+                    <Trophy className="h-4 w-4 text-yellow-400" />
+                    <span>Leaderboard</span>
+                  </Link>
                 </div>
               </Card>
 
@@ -991,15 +874,7 @@ const ProfilePage = () => {
                     </div>
                   ))}
                 </div>
-                {badges.length > 6 && (
-                  <button
-                    onClick={() => setActiveTab('badges')}
-                    className="w-full mt-4 text-primary hover:text-primary-light text-sm flex items-center justify-center"
-                  >
-                    View All Badges
-                    <ChevronRight className="h-4 w-4 ml-1" />
-                  </button>
-                )}
+                {/* Removed link to a non-existent Badges tab to keep UI focused */}
               </Card>
             </div>
           </motion.div>
@@ -1014,7 +889,7 @@ const ProfilePage = () => {
             transition={{ duration: 0.3 }}
             className="space-y-8"
           >
-            {/* Account Settings */}
+            {/* Account Settings - Only include real features (password change). */}
             <Card className="p-6">
               <h2 className="text-2xl font-bold text-white mb-6">Account Settings</h2>
               
@@ -1081,144 +956,13 @@ const ProfilePage = () => {
                 </div>
               </div>
             </Card>
-
-            {/* Notification Settings */}
-            <Card className="p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">Notification Preferences</h2>
-              
-              {settings && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-white font-medium">Email Notifications</h4>
-                      <p className="text-sm text-gray-400">Receive notifications via email</p>
-                    </div>
-                    <button
-                      onClick={() => setEditedSettings(prev => ({ ...prev, notifications_email: !prev.notifications_email }))}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        editedSettings.notifications_email ? 'bg-primary' : 'bg-gray-600'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          editedSettings.notifications_email ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-white font-medium">Challenge Notifications</h4>
-                      <p className="text-sm text-gray-400">Get notified about new challenges</p>
-                    </div>
-                    <button
-                      onClick={() => setEditedSettings(prev => ({ ...prev, notifications_challenges: !prev.notifications_challenges }))}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        editedSettings.notifications_challenges ? 'bg-primary' : 'bg-gray-600'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          editedSettings.notifications_challenges ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-white font-medium">Team Notifications</h4>
-                      <p className="text-sm text-gray-400">Get notified about team activities</p>
-                    </div>
-                    <button
-                      onClick={() => setEditedSettings(prev => ({ ...prev, notifications_teams: !prev.notifications_teams }))}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        editedSettings.notifications_teams ? 'bg-primary' : 'bg-gray-600'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          editedSettings.notifications_teams ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-white font-medium">Sound Effects</h4>
-                      <p className="text-sm text-gray-400">Play sounds for interactions</p>
-                    </div>
-                    <button
-                      onClick={() => setEditedSettings(prev => ({ ...prev, sound_effects: !prev.sound_effects }))}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        editedSettings.sound_effects ? 'bg-primary' : 'bg-gray-600'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          editedSettings.sound_effects ? 'translate-x-6' : 'translate-x-1'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </Card>
-
-            {/* Privacy Settings */}
-            <Card className="p-6">
-              <h2 className="text-2xl font-bold text-white mb-6">Privacy Settings</h2>
-              
-              {settings && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="form-label">Profile Visibility</label>
-                    <select
-                      value={editedSettings.privacy_profile}
-                      onChange={(e) => setEditedSettings(prev => ({ ...prev, privacy_profile: e.target.value as any }))}
-                      className="form-input"
-                    >
-                      <option value="public">Public</option>
-                      <option value="friends">Friends Only</option>
-                      <option value="private">Private</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="form-label">Statistics Visibility</label>
-                    <select
-                      value={editedSettings.privacy_stats}
-                      onChange={(e) => setEditedSettings(prev => ({ ...prev, privacy_stats: e.target.value as any }))}
-                      className="form-input"
-                    >
-                      <option value="public">Public</option>
-                      <option value="friends">Friends Only</option>
-                      <option value="private">Private</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="form-label">Activity Visibility</label>
-                    <select
-                      value={editedSettings.privacy_activity}
-                      onChange={(e) => setEditedSettings(prev => ({ ...prev, privacy_activity: e.target.value as any }))}
-                      className="form-input"
-                    >
-                      <option value="public">Public</option>
-                      <option value="friends">Friends Only</option>
-                      <option value="private">Private</option>
-                    </select>
-                  </div>
-                </div>
-              )}
-            </Card>
+            {/* Removed Notification/Privacy Settings (were mock/no-op). */}
           </motion.div>
         )}
 
-        {/* Add other tab content here (stats, badges, achievements, activity) */}
+        {/* Other tabs removed to avoid placeholders. Keep the page focused and clean. */}
       </AnimatePresence>
+      </div>
     </div>
   );
 };
