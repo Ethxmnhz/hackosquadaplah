@@ -20,7 +20,6 @@ const ChallengesPage = lazy(() => import('./pages/challenges/ChallengesPage'));
 const ChallengePage = lazy(() => import('./pages/challenges/ChallengePage'));
 const LabsPage = lazy(() => import('./pages/labs/LabsPage'));
 const LabPage = lazy(() => import('./pages/labs/LabPage'));
-const ThreatIntelligencePage = lazy(() => import('./pages/dashboard/ThreatIntelligencePage'));
 const CertificationsPage = lazy(() => import('./pages/certifications/CertificationsPage'));
 const SkillPathPage = lazy(() => import('./pages/skillpaths/SkillPathPage'));
 
@@ -95,7 +94,7 @@ function App() {
               <Route path="/skill-paths" element={<CertificationsPage />} />
               <Route path="/skill-paths/:id" element={<SkillPathPage />} />
               <Route path="/leaderboard" element={<LeaderboardPage />} />
-              <Route path="/threat-intelligence" element={<ThreatIntelligencePage />} />
+              {/* Threat Intelligence removed */}
               
               {/* Operations Routes */}
               <Route path="/operations" element={<OperationsPage />} />

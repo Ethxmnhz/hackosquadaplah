@@ -105,7 +105,7 @@ const SkillPathPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0A030F] via-background-dark to-[#181024] flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-red-500 border-t-transparent"></div>
       </div>
     );
@@ -113,7 +113,7 @@ const SkillPathPage = () => {
 
   if (!skillPath) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0A030F] via-background-dark to-[#181024] flex items-center justify-center">
         <div className="text-center">
           <AlertTriangle className="h-16 w-16 text-gray-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-white mb-2">Skill Path Not Found</h1>
@@ -134,9 +134,9 @@ const SkillPathPage = () => {
   const progressPercentage = totalItems > 0 ? (completedItems / totalItems) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-slate-950">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A030F] via-background-dark to-[#181024] text-white relative">
       {/* Header */}
-      <div className="bg-slate-900/80 border-b border-slate-800">
+      <div className="bg-slate-900/40 backdrop-blur-sm border-b border-red-500/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -173,12 +173,12 @@ const SkillPathPage = () => {
                     {skillPath.category}
                   </span>
                   {cert.code && (
-                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-indigo-600/20 text-indigo-300 border border-indigo-500/30">
+                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-red-600/20 text-red-300 border border-red-500/30">
                       {cert.code}
                     </span>
                   )}
                   {cert.is_featured && (
-                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-pink-600/20 text-pink-300 border border-pink-500/30">
+                    <span className="px-3 py-1 rounded-full text-sm font-semibold bg-purple-600/20 text-purple-300 border border-purple-500/30">
                       Featured
                     </span>
                   )}
@@ -442,7 +442,7 @@ const SkillPathPage = () => {
             {(() => { const cert: any = skillPath; const passing = typeof cert.passing_score_percent === 'number' ? cert.passing_score_percent : 75; return (
               <Card className="p-6">
                 <h3 className="font-semibold text-white mb-4 flex items-center">
-                  <Award className="h-4 w-4 mr-2 text-indigo-400" />
+                  <Award className="h-4 w-4 mr-2 text-red-400" />
                   Certificate Preview
                 </h3>
                 <div className="rounded-lg overflow-hidden border border-slate-700/60 bg-slate-800/40">
@@ -457,14 +457,14 @@ const SkillPathPage = () => {
                   )}
                 </div>
                 {cert.code && (
-                  <div className="mt-3 inline-flex items-center gap-2 px-2 py-1 rounded bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 text-xs font-semibold tracking-wide">
+                  <div className="mt-3 inline-flex items-center gap-2 px-2 py-1 rounded bg-red-600/20 border border-red-500/30 text-red-300 text-xs font-semibold tracking-wide">
                     <span>Code:</span>
                     <span>{cert.code}</span>
                   </div>
                 )}
                 <div className="mt-4 text-sm text-gray-300 bg-slate-800/50 border border-slate-700/60 rounded-lg p-3">
                   <p className="flex items-start gap-2">
-                    <Shield className="h-4 w-4 text-indigo-400 mt-0.5" />
+                    <Shield className="h-4 w-4 text-red-400 mt-0.5" />
                     <span>Complete all required modules and pass the final exam with at least {passing}% to earn your certificate.</span>
                   </p>
                 </div>

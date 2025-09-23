@@ -639,7 +639,6 @@ const Sidebar = ({ mobile = false, onClose }: SidebarProps) => {
             <NavItem to="/challenges" icon={<Flag className="h-5 w-5" />} label="Challenges" badge={isMinimized ? undefined : 3} isMinimized={isMinimized} />
             <NavItem to="/skill-paths" icon={<Award className="h-5 w-5" />} label="Certifications" isMinimized={isMinimized} />
             <NavItem to="/labs" icon={<Flask className="h-5 w-5" />} label="Labs" isNew={!isMinimized} isMinimized={isMinimized} />
-            <NavItem to="/threat-intelligence" icon={<Shield className="h-5 w-5" />} label="Threat Intel" isNew={!isMinimized} isMinimized={isMinimized} />
             <NavItem to="/leaderboard" icon={<Trophy className="h-5 w-5" />} label="Leaderboard" isMinimized={isMinimized} />
           </NavSection>
           
