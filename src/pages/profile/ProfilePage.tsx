@@ -14,6 +14,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
 import Card from '../../components/ui/Card';
+import EntitlementsList from '../../components/billing/EntitlementsList';
 
 interface UserProfile {
   id: string;
@@ -561,6 +562,10 @@ const ProfilePage = () => {
           >
             {/* Profile Information */}
             <div className="lg:col-span-2 space-y-6">
+              <Card className="p-5">
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2"><Shield className="h-5 w-5" /> Entitlements</h3>
+                <EntitlementsList />
+              </Card>
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-white">Profile Information</h2>

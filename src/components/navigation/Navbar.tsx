@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { 
   Menu, ChevronDown, LogOut, Settings, User,
   Trophy, BookOpen, Award, FlaskRound as Flask, Flag, Monitor,
-  Sword, ShieldAlert, Plus, FolderCheck, Target, Shield
+  Plus, FolderCheck, Target, Shield
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../hooks/useAuth';
@@ -22,8 +22,8 @@ interface DropdownItem {
 
 const Navbar = ({ onMenuClick }: NavbarProps) => {
   const { signOut, user } = useAuth();
-  const location = useLocation();
-  const navigate = useNavigate();
+  // Billing modal removed for Upgrade; now direct navigation to /billing
+  // Removed unused location & navigate to satisfy linter
   
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLearnMenu, setShowLearnMenu] = useState(false);
@@ -263,6 +263,13 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
           
           {/* Right Section */}
           <div className="flex items-center space-x-3">
+            {/* Upgrade Button */}
+            <Link
+              to="/billing"
+              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-red-500 to-purple-600 text-white shadow-lg hover:shadow-red-500/30 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500/50"
+            >
+              <span>Upgrade</span>
+            </Link>
             {/* User Menu */}
             <div className="relative dropdown-container">
               <button

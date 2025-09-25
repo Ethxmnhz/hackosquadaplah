@@ -118,7 +118,7 @@ const OperationsPage = () => {
     navigate('/operations/arena');
   };
 
-  return (
+  const content = (
     <div className="min-h-screen text-white" 
          style={{ 
            background: 'radial-gradient(ellipse at 60% 20%, #181024 0%, #0A030F 100%)',
@@ -192,7 +192,7 @@ const OperationsPage = () => {
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#0A030F] to-transparent z-10"></div>
       </div>
       
-      {/* Main Content */}
+  {/* Main Content (Gated) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         
         {/* What is Operations Section */}
@@ -393,6 +393,8 @@ const OperationsPage = () => {
       </div>
     </div>
   );
+
+  return content;
 };
 
 export default OperationsPage;

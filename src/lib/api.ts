@@ -9,6 +9,9 @@ const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || 'you
 // Initialize the Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+// Billing API helpers
+// (Removed duplicate billing helper definitions added later in file)
+
 export const createChallenge = async (data: ChallengeFormData) => {
   try {
     const user = (await supabase.auth.getUser()).data.user;
@@ -565,6 +568,106 @@ export const getChallenge = async (id: string) => {
     return { success: false, error: 'Failed to load challenge' };
   }
 };
+
+// --- Billing Helpers (provider-agnostic placeholders) ---
+export interface CheckoutResult { url: string; provider_checkout_id: string }
+export interface SubscriptionSummary { id: string; status: string; current_period_end?: string }
+export interface EntitlementRecord { id: string; scope: string; active: boolean; source: string; ends_at?: string | null }
+
+export async function billingCheckout(priceId: string): Promise<CheckoutResult | { error: string }> {
+  try {
+    const res = await fetch('/functions/v1/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ price_id: priceId }) });
+    return await res.json();
+  } catch (e) {
+    return { error: (e as Error).message };
+  }
+}
+
+export async function getEntitlements(): Promise<EntitlementRecord[]> {
+  const user = (await supabase.auth.getUser()).data.user;
+  if (!user) return [];
+  const { data, error } = await supabase.from('entitlements').select('*').eq('user_id', user.id);
+  if (error) return [];
+  return data as any;
+}
+
+export async function redeemVoucher(code: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const token = (await supabase.auth.getSession()).data.session?.access_token;
+    const res = await fetch('/functions/v1/billing/redeem-voucher', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' }, body: JSON.stringify({ code }) });
+    const json = await res.json();
+    return json;
+  } catch (e) {
+    return { success: false, error: (e as Error).message };
+  }
+}
+
+// Catalog fetch (plan & voucher products with region-aware prices)
+export interface CatalogProduct { id: string; slug: string; type: string; name: string; description?: string; entitlement_scopes?: string[]; prices: any[] }
+export async function getCatalog(region?: string): Promise<{ catalog: CatalogProduct[]; error?: string }> {
+  try {
+    const url = region ? `/functions/v1/billing/catalog?region=${encodeURIComponent(region)}` : '/functions/v1/billing/catalog';
+    const res = await fetch(url);
+    const json = await res.json();
+    if (res.ok && Array.isArray(json.catalog) && json.catalog.length) {
+      return { catalog: json.catalog };
+    }
+    // Fallback: query directly through supabase (read-only) if server function not deployed or empty
+    const { data: products, error: pErr } = await supabase.from('products').select('id,slug,type,name,description,entitlement_scopes');
+    if (pErr) return { catalog: [], error: json.error || pErr.message || 'catalog_error' };
+    const { data: prices, error: prErr } = await supabase.from('prices').select('id,product_id,billing_cycle,currency,unit_amount,provider,is_active').eq('is_active', true);
+    if (prErr) return { catalog: [], error: json.error || prErr.message || 'catalog_error' };
+    const grouped: Record<string, any> = {};
+    for (const p of products) grouped[p.id] = { ...p, prices: [] };
+    for (const price of prices) {
+      if (grouped[price.product_id]) grouped[price.product_id].prices.push(price);
+    }
+    return { catalog: Object.values(grouped) as CatalogProduct[] };
+  } catch (e) {
+    return { catalog: [], error: (e as Error).message };
+  }
+}
+
+export async function getSubscriptions(): Promise<SubscriptionSummary[]> {
+  const { data, error } = await supabase.from('subscriptions').select('id,status,current_period_end');
+  if (error) return [];
+  return data as any;
+}
+
+// Create subscription (Razorpay) via edge function
+export async function createSubscription(priceId: string): Promise<any> {
+  try {
+    const token = (await supabase.auth.getSession()).data.session?.access_token;
+    const res = await fetch('/functions/v1/billing/create-subscription', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' }, body: JSON.stringify({ price_id: priceId }) });
+    return await res.json();
+  } catch (e) { return { error: (e as Error).message }; }
+}
+
+export async function cancelSubscription(subscriptionId: string): Promise<any> {
+  try {
+    const token = (await supabase.auth.getSession()).data.session?.access_token;
+    const res = await fetch('/functions/v1/billing/cancel-subscription', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' }, body: JSON.stringify({ subscription_id: subscriptionId }) });
+    return await res.json();
+  } catch (e) { return { error: (e as Error).message }; }
+}
+
+export interface PurchaseRecord { id: string; product_id: string; status: string; amount_total?: number; currency?: string; paid_at?: string }
+export async function getPurchases(): Promise<PurchaseRecord[]> {
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from('purchases')
+      .select('id, product_id, status, amount_total, currency, paid_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(50);
+    if (error) return [];
+    return data as any;
+  } catch (_) { return []; }
+}
+
+// (Removed legacy direct DB cancelSubscription helper in favor of provider-backed function)
 
 export const loadChallenges = async () => {
   try {

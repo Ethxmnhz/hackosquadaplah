@@ -56,6 +56,8 @@ const LeaderboardPage = lazy(() => import('./pages/leaderboard/LeaderboardPage')
 
 // Profile Page (lazy)
 const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
+const BillingPage = lazy(() => import('./pages/billing/index'));
+const BillingAdminPage = lazy(() => import('./pages/admin/BillingAdminPage')); // placeholder
 
 // Error Pages (lazy)
 const NotFoundPage = lazy(() => import('./pages/error/NotFoundPage'));
@@ -73,7 +75,7 @@ function App() {
   if (!isInitialized) return <LoadingScreen message="Loading" subMessage="Establishing secure session..." />;
 
   return (
-    <>
+  <>
       <AnimatePresence mode="wait">
         <Suspense fallback={<LoadingScreen message="Loading" subMessage="Fetching resources..." /> }>
         <Routes>
@@ -94,6 +96,7 @@ function App() {
               <Route path="/skill-paths" element={<CertificationsPage />} />
               <Route path="/skill-paths/:id" element={<SkillPathPage />} />
               <Route path="/leaderboard" element={<LeaderboardPage />} />
+              <Route path="/billing" element={<BillingPage />} />
               {/* Threat Intelligence removed */}
               
               {/* Operations Routes */}
@@ -136,6 +139,7 @@ function App() {
                 <Route path="/admin/operations" element={<OperationsManagementPage />} />
                 <Route path="/admin/laboperations" element={<LabOperation />} />
                 <Route path="/admin/RedVsBlueSessionsAdminPage" element={<RedVsBlueSessionsAdminPage />} />
+                <Route path="/admin/billing" element={<BillingAdminPage />} />
               </Route>
             </Route>
           </Route>
@@ -151,7 +155,7 @@ function App() {
         </Routes>
         </Suspense>
       </AnimatePresence>
-    </>
+  </>
   );
 }
 
