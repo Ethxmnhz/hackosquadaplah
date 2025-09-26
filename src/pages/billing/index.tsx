@@ -1,266 +1,160 @@
 import React, { useEffect, useState } from 'react';
-import RazorpayButton from '../../components/billing/RazorpayButton';
-import { billingCheckout, getCatalog, getEntitlements, getSubscriptions, getPurchases, createSubscription, cancelSubscription } from '../../lib/api';
-import { useAuth } from '../../hooks/useAuth';
-import { useEntitlements } from '../../hooks/useEntitlements';
-import { useSubscriptionActivationPoller } from '../../hooks/useSubscriptionActivationPoller';
+import { getUserPlan, payPlan } from '../../lib/api';
 
-interface CatalogPrice { id: string; currency: string; unit_amount: number; provider: string; product_id: string; billing_cycle?: string }
-interface CatalogProduct { id: string; name: string; description?: string | null; entitlement_scopes?: string[]; prices: CatalogPrice[] }
+// Clean static billing page (legacy dynamic billing removed)
+interface Plan { id: string; name: string; priceDisplay: string; priceNote?: string; description: string; features: string[]; highlight?: boolean; badge?: string; cta: string; }
 
-// Error boundary to isolate billing UI failures
-class BillingErrorBoundary extends React.Component<{ children: React.ReactNode }, { error: Error | null }> {
-  constructor(props: any) { super(props); this.state = { error: null }; }
-  static getDerivedStateFromError(error: Error) { return { error }; }
-  componentDidCatch(error: Error, info: any) { console.error('Billing error boundary', error, info); }
-  render() {
-    if (this.state.error) {
-      return (
-        <div className="p-6 space-y-4">
-          <div className="border border-red-500/40 bg-red-500/10 text-red-300 rounded p-4 text-sm">
-            <p className="font-semibold mb-1">Billing Component Error</p>
-            <p className="text-xs mb-3">{this.state.error.message}</p>
-            <button onClick={() => this.setState({ error: null })} className="px-3 py-1 rounded bg-red-600 text-white text-xs">Retry</button>
-          </div>
-          {process.env.NODE_ENV !== 'production' && (
-            <pre className="text-[10px] whitespace-pre-wrap opacity-70">{this.state.error.stack}</pre>
-          )}
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
+const plans: Plan[] = [
+  { id: 'free', name: 'Free', priceDisplay: '₹0', description: 'Get started with core challenges and basic learning content.', features: ['Access to public challenges','Basic labs & practice','Community leaderboard','Limited progress tracking'], cta: 'Current Plan' },
+  { id: 'hifi', name: 'HiFi', priceDisplay: '₹1', priceNote: 'intro test price', description: 'Unlock advanced labs and faster progression tools.', features: ['Everything in Free','Advanced & scenario labs','Early access to new content','Priority leaderboard updates','Challenge analytics (beta)'], cta: 'Upgrade to HiFi', highlight: true, badge: 'Popular' },
+  { id: 'sify', name: 'Sify', priceDisplay: '₹1', priceNote: 'intro test price', description: 'Full platform power for teams & intense skill growth.', features: ['Everything in HiFi','Exclusive pro operations','Certification fast-track','Extended analytics & insights','Beta & experimental features'], cta: 'Go Sify', badge: 'Advanced' }
+];
 
-const BillingPageInner: React.FC = () => {
-  const { session } = useAuth();
-  const { refresh: refreshEntitlements } = useEntitlements();
-  const [products, setProducts] = useState<CatalogProduct[]>([]);
-  const [entitlements, setEntitlements] = useState<any[]>([]);
-  const [subscriptions, setSubscriptions] = useState<any[]>([]);
-  const [purchases, setPurchases] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [creating, setCreating] = useState<string | null>(null);
-  const [rzpState, setRzpState] = useState<any | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+interface PaymentState { loading?: boolean; error?: string | null; success?: string | null }
 
-  const refreshAll = async () => {
-    const [entsRes, subsRes, purchRes] = await Promise.all([
-      getEntitlements(),
-      getSubscriptions(),
-      getPurchases()
-    ]);
-    // Each helper presumed to return shape { entitlements: [] } etc; fall back if direct array
-    const ents = (entsRes as any).entitlements ?? entsRes;
-    const subs = (subsRes as any).subscriptions ?? subsRes;
-    const purs = (purchRes as any).purchases ?? purchRes;
-    setEntitlements(Array.isArray(ents) ? ents : []);
-    setSubscriptions(Array.isArray(subs) ? subs : []);
-    setPurchases(Array.isArray(purs) ? purs : []);
-  };
+declare global { interface Window { Razorpay?: any } }
 
-  // Initial load
+const BillingPage: React.FC = () => {
+  const [currentPlan, setCurrentPlan] = useState<string>('free');
+  const [payingPlan, setPayingPlan] = useState<string | null>(null);
+  const [payment, setPayment] = useState<PaymentState>({});
+
+  // Load current plan
+  useEffect(() => { (async () => { const res = await getUserPlan(); setCurrentPlan(res.plan); })(); }, []);
+
+  // Load Razorpay script once
   useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const [catalogRes, entsRes, subsRes, pursRes] = await Promise.all([
-          getCatalog(), getEntitlements(), getSubscriptions(), getPurchases()
-        ]);
-        if (!mounted) return;
-        const catalogData = (catalogRes as any).catalog || catalogRes || [];
-        // Diagnostics
-        if ((catalogData as any[]).length === 0) {
-          // eslint-disable-next-line no-console
-          console.warn('[billing] Empty catalog received. Check edge function deployment or fallback query.');
-        }
-        setProducts(catalogData);
-        const ents = (entsRes as any).entitlements ?? entsRes;
-        const subs = (subsRes as any).subscriptions ?? subsRes;
-        const purs = (pursRes as any).purchases ?? pursRes;
-        setEntitlements(Array.isArray(ents) ? ents : []);
-        setSubscriptions(Array.isArray(subs) ? subs : []);
-        setPurchases(Array.isArray(purs) ? purs : []);
-      } catch (e: any) {
-        setError(e.message || 'Failed to load billing data');
-      } finally { if (mounted) setLoading(false); }
-    })();
-    return () => { mounted = false; };
+    if (window.Razorpay) return;
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    document.body.appendChild(script);
   }, []);
 
-  // Poller hook
-  const poller = useSubscriptionActivationPoller({
-    fetchSubscriptions: async () => {
-      const subsRes = await getSubscriptions();
-      const subs = (subsRes as any).subscriptions ?? subsRes;
-      setSubscriptions(Array.isArray(subs) ? subs : []);
-      return Array.isArray(subs) ? subs : [];
-    },
-    onActivated: async () => {
-      await refreshEntitlements();
-      await refreshAll();
-      setSuccessMessage('Subscription activated! Your access has been upgraded.');
-      setTimeout(() => setSuccessMessage(null), 6000);
-    },
-    isActive: (s: any) => s.status === 'active'
-  }, { intervalMs: 3000, maxDurationMs: 120000 });
-
-  // Auto-start polling if we see an incomplete subscription after load
-  useEffect(() => {
-    if (subscriptions.some(s => s.status === 'incomplete') && !poller.polling && !poller.activationJustHappened) {
-      poller.start();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscriptions]);
-
-  async function startCheckout(price: CatalogPrice) {
-    if (!session) { setError('You must be signed in'); return; }
-    setCreating(price.id);
+  async function startPayment(planId: string) {
+    setPayment({ loading: true });
+    setPayingPlan(planId);
     try {
-      const res: any = await billingCheckout(price.id);
-      if (res.provider === 'razorpay') {
-        // Store ephemeral order data in state to show Razorpay button
-        setRzpState({ orderId: res.order_id, amount: res.amount, currency: res.currency, key: res.key });
-      } else if (res.url) {
-        window.location.href = res.url;
+      const order = await payPlan('create', { plan: planId });
+      // Auto-verify in mock mode (order.mock or order.mock_mode)
+      if (order?.mock || order?.mock_mode) {
+        try {
+          await payPlan('verify', { plan: planId, order_id: order.order_id || order.id, razorpay_payment_id: 'pay_mock', razorpay_signature: 'sig_mock' });
+          setPayment({ success: 'Test upgrade applied (mock).' });
+          setCurrentPlan(planId);
+        } catch (e:any) {
+          setPayment({ error: 'Mock verify failed: ' + e.message });
+        } finally {
+          setPayingPlan(null);
+        }
+        return;
       }
+      if (!window.Razorpay) throw new Error('Razorpay SDK not loaded');
+      const rzp = new window.Razorpay({
+        key: order.key,
+        amount: order.amount,
+        currency: order.currency,
+        name: 'Upgrade Plan',
+        description: `Activate ${planId.toUpperCase()}`,
+        order_id: order.order_id,
+        handler: async (response: any) => {
+          try {
+            await payPlan('verify', { plan: planId, order_id: order.order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature });
+            setPayment({ success: 'Payment successful!' });
+            setCurrentPlan(planId);
+          } catch (e:any) {
+            setPayment({ error: e.message });
+          } finally {
+            setPayingPlan(null);
+          }
+        },
+  // Capture dismissal & failure feedback
+  notes: { plan: planId },
+  modal: { ondismiss: () => { setPayingPlan(null); setPayment({}); } },
+        theme: { color: '#2563eb' }
+      });
+      rzp.on('payment.failed', (resp: any) => {
+        console.error('[Razorpay payment.failed]', resp?.error);
+        const reason = resp?.error?.description || resp?.error?.reason || 'Payment failed';
+        setPayment({ error: reason });
+        setPayingPlan(null);
+      });
+      rzp.open();
     } catch (e:any) {
-      setError(e.message || 'Checkout failed');
-    } finally { setCreating(null); }
-  }
-
-  if (loading) return <div className="p-6">Loading products...</div>;
-  if (error) return <div className="p-6 text-red-600">{error}</div>;
-  async function startSubscription(price: CatalogPrice) {
-    if (!session) { setError('You must be signed in'); return; }
-    setCreating(price.id);
-    try {
-      const res: any = await createSubscription(price.id);
-      if (res.short_url) {
-        window.open(res.short_url, '_blank');
-        poller.start();
-      }
-    } catch (e:any) {
-      setError(e.message || 'Subscription creation failed');
-    } finally { setCreating(null); }
-  }
-  async function doCancelSubscription(id: string) {
-    try {
-      const res = await cancelSubscription(id);
-      console.log('cancel result', res);
-      // refresh subs list
-      await refreshAll();
-    } catch (e:any) {
-      setError(e.message || 'Cancel failed');
+      setPayment({ error: e.message });
+      setPayingPlan(null);
     }
   }
 
   return (
-    <div className="p-6 space-y-8">
-  <h1 className="text-2xl font-semibold">Billing</h1>
-  {poller.polling && (
-    <div className="text-xs px-3 py-2 rounded bg-blue-500/10 border border-blue-400/30 text-blue-300 inline-block">Waiting for subscription activation...</div>
-  )}
-  {successMessage && (
-    <div className="mt-2 text-xs px-3 py-2 rounded bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 inline-flex items-center gap-2">
-      <span>{successMessage}</span>
-      <button onClick={() => setSuccessMessage(null)} className="text-emerald-400 hover:text-emerald-200">✕</button>
+  <div className="mx-auto max-w-7xl px-4 py-10">
+    <div className="mb-12 text-center">
+      <h1 className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-blue-400 to-cyan-300 text-transparent bg-clip-text">Choose Your Plan</h1>
+      <p className="mt-3 text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">Scale your learning journey. Start free, then unlock deeper labs, analytics, and certification accelerators when ready.</p>
     </div>
-  )}
-  {poller.timedOut && !successMessage && (
-    <div className="mt-2 text-xs px-3 py-2 rounded bg-yellow-500/10 border border-yellow-400/30 text-yellow-300 inline-flex items-center gap-2">
-      <span>Still waiting for activation. If payment succeeded it should arrive soon.</span>
-      <button onClick={() => poller.start()} className="text-yellow-400 hover:text-yellow-200">Retry</button>
-    </div>
-  )}
-      {rzpState && (
-        <div className="p-4 border rounded bg-gray-50">
-          <h3 className="font-medium mb-2">Complete Payment</h3>
-          <RazorpayButton orderId={rzpState.orderId} amount={rzpState.amount} currency={rzpState.currency} publicKey={rzpState.key}
-            onSuccess={async (pid) => { console.log('Payment success', pid); setRzpState(null); setTimeout(() => refreshEntitlements(), 1500); }}
-            onClose={() => setRzpState(null)} />
-        </div>
-      )}
-      {products.length === 0 && (
-        <div className="p-4 border rounded bg-yellow-500/10 border-yellow-500/30 text-yellow-300 text-sm">
-          <p className="font-medium mb-1">No subscription products available</p>
-          <p className="text-xs opacity-80 mb-2">Add products and prices or ensure the catalog edge function is deployed. Falling back to direct DB read returned no rows.</p>
-          <button onClick={() => window.location.reload()} className="px-3 py-1 rounded bg-yellow-600 text-white text-xs">Reload</button>
-        </div>
-      )}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {products.map(p => (
-          <div key={p.id} className="border rounded p-4 flex flex-col">
-            <h2 className="font-medium text-lg mb-1">{p.name}</h2>
-            {p.description && <p className="text-sm text-gray-500 mb-2">{p.description}</p>}
-            {p.entitlement_scopes?.length ? (
-              <ul className="text-xs text-gray-600 mb-3 list-disc list-inside">
-                {p.entitlement_scopes.map(s => <li key={s}>{s}</li>)}
-              </ul>
-            ) : null}
-            <div className="space-y-2 mt-auto">
-              {p.prices.map(price => (
-                <div key={price.id} className="flex gap-2">
-                  <button onClick={() => startCheckout(price)} disabled={creating === price.id}
-                    className="flex-1 inline-flex items-center justify-center rounded bg-blue-600 text-white py-2 text-xs disabled:opacity-50">
-                    {creating === price.id ? 'Starting...' : `Buy ${(price.unit_amount/100).toFixed(2)} ${price.currency.toUpperCase()}`}
-                  </button>
-                  {price.provider === 'razorpay' && price.id && (
-                    <button onClick={() => startSubscription(price)} disabled={creating === price.id || price.billing_cycle === 'one_time'}
-                      className="flex-1 inline-flex items-center justify-center rounded bg-emerald-600 text-white py-2 text-xs disabled:opacity-50">
-                      Sub {(price.unit_amount/100).toFixed(2)} {price.currency.toUpperCase()}
-                    </button>
-                  )}
-                </div>
-              ))}
+    <div className="grid gap-6 md:grid-cols-3 items-stretch">
+      {plans.map(plan => {
+        const highlightClasses = plan.highlight ? 'ring-2 ring-blue-500 shadow-lg shadow-blue-600/10 relative bg-gradient-to-b from-gray-900/80 to-gray-900 border-blue-500/40' : 'border-gray-200/40 dark:border-gray-700/60 bg-gray-900/40';
+        return (
+          <div key={plan.id} className={`flex flex-col rounded-xl border backdrop-blur-sm p-6 md:p-7 ${highlightClasses}`}>
+            {plan.badge && (
+              <span className={`absolute -top-3 left-4 px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide ${plan.highlight ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-200'}`}>{plan.badge}</span>
+            )}
+            <div className="mb-4">
+              <h2 className="text-xl font-semibold mb-1 flex items-center gap-2">{plan.name}</h2>
+              <div className="flex items-end gap-2">
+                <span className="text-3xl font-bold text-white">{plan.priceDisplay}</span>
+                <span className="text-xs uppercase tracking-wide text-gray-400">/ month</span>
+              </div>
+              {plan.priceNote && <p className="text-[11px] mt-1 text-blue-400 uppercase tracking-wide">{plan.priceNote}</p>}
+              <p className="text-sm mt-4 text-gray-400 leading-relaxed min-h-[54px]">{plan.description}</p>
             </div>
+            <ul className="space-y-2 text-sm mb-6 flex-1">
+              {plan.features.map(f => (
+                <li key={f} className="flex items-start gap-2">
+                  <span className="mt-0.5 text-blue-400">✓</span>
+                  <span className="text-gray-300">{f}</span>
+                </li>
+              ))}
+            </ul>
+            {currentPlan === plan.id ? (
+              <button disabled className={`mt-auto w-full rounded-md px-4 py-2.5 text-sm font-medium disabled:opacity-60 ${plan.highlight ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-100'}`}>Current Plan</button>
+            ) : (
+              <button
+                disabled={plan.id === 'free' || payingPlan === plan.id || payment.loading}
+                onClick={() => startPayment(plan.id)}
+                className={`mt-auto w-full rounded-md px-4 py-2.5 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-default ${plan.highlight ? 'bg-blue-600 hover:bg-blue-500 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-100'}`}
+              >{payingPlan === plan.id ? 'Processing...' : plan.cta}</button>
+            )}
           </div>
-        ))}
+        );
+      })}
+    </div>
+
+    <div className="mt-6 min-h-[24px] text-center text-sm">
+      {payment.error && <span className="text-red-400">{payment.error}</span>}
+      {payment.success && <span className="text-emerald-400">{payment.success}</span>}
+      {payment.loading && <span className="text-gray-400 animate-pulse">Starting payment...</span>}
+    </div>
+    {(payment.success?.includes('Test upgrade') || payment.success?.includes('mock')) && (
+      <div className="mt-2 text-center text-xs text-blue-400">Mock mode active – no real payment processed.</div>
+    )}
+    <div className="mt-14 grid md:grid-cols-3 gap-8 text-sm">
+      <div>
+        <h3 className="font-semibold mb-2 text-gray-200">Fair Test Pricing</h3>
+        <p className="text-gray-400 leading-relaxed">HiFi and Sify are presently at a symbolic ₹1 to validate upgrade flows and gather early adoption signals. Pricing will adjust post‑beta without auto‑charging existing test users.</p>
       </div>
-      <div className="grid md:grid-cols-3 gap-6">
-        <div className="border rounded p-4">
-          <h3 className="font-semibold mb-2 text-sm tracking-wide">Entitlements</h3>
-          <ul className="text-xs space-y-1 max-h-56 overflow-auto">
-            {entitlements.map(e => <li key={e.id}>{e.scope}{e.ends_at ? <span className="text-gray-500"> (until {new Date(e.ends_at).toLocaleDateString()})</span> : ''}</li>)}
-            {!entitlements.length && <li className="text-gray-500">None</li>}
-          </ul>
-        </div>
-        <div className="border rounded p-4">
-          <h3 className="font-semibold mb-2 text-sm tracking-wide">Subscriptions</h3>
-          <ul className="text-xs space-y-2">
-            {subscriptions.map(s => (
-              <li key={s.id} className="flex items-center justify-between gap-2">
-                <div className="flex-1">
-                  <div className="font-medium text-[11px]">{s.product_id}</div>
-                  <div className="text-[10px] text-gray-500">{s.status}{s.cancel_at_period_end ? ' (cancels at end)' : ''}</div>
-                </div>
-                {s.status === 'active' && !s.cancel_at_period_end && (
-                  <button onClick={() => doCancelSubscription(s.id)} className="text-[10px] bg-red-600 text-white rounded px-2 py-1">Cancel</button>
-                )}
-              </li>
-            ))}
-            {!subscriptions.length && <li className="text-gray-500">None</li>}
-          </ul>
-        </div>
-        <div className="border rounded p-4">
-          <h3 className="font-semibold mb-2 text-sm tracking-wide">Recent Purchases</h3>
-          <ul className="text-xs space-y-1 max-h-56 overflow-auto">
-            {purchases.map(p => (
-              <li key={p.id}>{p.product_id} • {p.status} {p.amount_total ? `• ${(p.amount_total/100).toFixed(2)} ${p.currency}` : ''}</li>
-            ))}
-            {!purchases.length && <li className="text-gray-500">None</li>}
-          </ul>
-        </div>
+      <div>
+        <h3 className="font-semibold mb-2 text-gray-200">No Risk Exploration</h3>
+        <p className="text-gray-400 leading-relaxed">Stay on Free as long as you want. Upgrade only when you feel the need for deeper labs, faster progress tooling, or advanced analytics.</p>
+      </div>
+      <div>
+        <h3 className="font-semibold mb-2 text-gray-200">Future Roadmap</h3>
+        <p className="text-gray-400 leading-relaxed">Sify will evolve with team features, certification tracks, and seasonal operation perks. Your feedback now shapes what ships next.</p>
       </div>
     </div>
+  </div>
   );
 };
-
-const BillingPage: React.FC = () => (
-  <BillingErrorBoundary>
-    <BillingPageInner />
-  </BillingErrorBoundary>
-);
 
 export default BillingPage;

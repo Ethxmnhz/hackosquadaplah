@@ -1,16 +1,51 @@
-import { createClient } from '@supabase/supabase-js';
+// Use central Supabase client (avoid multiple instances that fragment auth state)
+import { supabase } from './supabase';
 import { ChallengeFormData } from './validation';
 import { Lab, LabQuestion, SkillPath, SkillPathItem } from './types';
 
-// Cast import.meta to any to avoid TS complaints if vite env type not declared
-const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL || 'https://your-supabase-url.supabase.co';
-const supabaseAnonKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY || 'your-anon-key';
-
-// Initialize the Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 // Billing API helpers
 // (Removed duplicate billing helper definitions added later in file)
+// Simple plan helpers (user_plans table)
+export async function getUserPlan() {
+  const { data, error } = await supabase
+    .from('user_plans')
+    .select('plan, activated_at')
+    .eq('user_id', (await supabase.auth.getUser()).data.user?.id)
+    .maybeSingle();
+  if (error) {
+    console.warn('[getUserPlan] error (returning free):', error.message);
+    return { plan: 'free' };
+  }
+  if (!data) return { plan: 'free' };
+  return { plan: data.plan || 'free', activated_at: data.activated_at };
+}
+
+// Call edge function to create or verify payment
+export async function payPlan(action: 'create'|'verify', payload: any) {
+  // Use Supabase functions client so it routes correctly in dev & prod
+  try {
+    const { data, error } = await supabase.functions.invoke('pay-plan', {
+      body: { action, ...payload }
+    });
+    if (error) {
+      // Log full error for diagnostics
+      console.error('[payPlan] invoke error', {
+        message: error.message,
+        name: (error as any).name,
+        status: (error as any).status,
+        stack: (error as any).stack
+      });
+      throw new Error(error.message || 'Payment error');
+    }
+    if (!data) {
+      console.warn('[payPlan] No data returned from function');
+    }
+    return data as any;
+  } catch (e:any) {
+    console.error('[payPlan] exception', e);
+    throw e;
+  }
+}
 
 export const createChallenge = async (data: ChallengeFormData) => {
   try {
@@ -570,116 +605,49 @@ export const getChallenge = async (id: string) => {
 };
 
 // --- Billing Helpers (provider-agnostic placeholders) ---
-export interface CheckoutResult { url: string; provider_checkout_id: string }
-export interface SubscriptionSummary { id: string; status: string; current_period_end?: string }
-export interface EntitlementRecord { id: string; scope: string; active: boolean; source: string; ends_at?: string | null }
+// REMOVED billing helpers (billingCheckout, getEntitlements, redeemVoucher, getCatalog, getSubscriptions, createSubscription, cancelSubscription, getPurchases)
+// If any code still imports these, remove those imports/usages.
 
-export async function billingCheckout(priceId: string): Promise<CheckoutResult | { error: string }> {
-  try {
-    const res = await fetch('/functions/v1/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ price_id: priceId }) });
-    return await res.json();
-  } catch (e) {
-    return { error: (e as Error).message };
-  }
-}
-
-export async function getEntitlements(): Promise<EntitlementRecord[]> {
-  const user = (await supabase.auth.getUser()).data.user;
-  if (!user) return [];
-  const { data, error } = await supabase.from('entitlements').select('*').eq('user_id', user.id);
-  if (error) return [];
-  return data as any;
-}
-
-export async function redeemVoucher(code: string): Promise<{ success: boolean; error?: string }> {
-  try {
-    const token = (await supabase.auth.getSession()).data.session?.access_token;
-    const res = await fetch('/functions/v1/billing/redeem-voucher', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' }, body: JSON.stringify({ code }) });
-    const json = await res.json();
-    return json;
-  } catch (e) {
-    return { success: false, error: (e as Error).message };
-  }
-}
-
-// Catalog fetch (plan & voucher products with region-aware prices)
-export interface CatalogProduct { id: string; slug: string; type: string; name: string; description?: string; entitlement_scopes?: string[]; prices: any[] }
-export async function getCatalog(region?: string): Promise<{ catalog: CatalogProduct[]; error?: string }> {
-  try {
-    const url = region ? `/functions/v1/billing/catalog?region=${encodeURIComponent(region)}` : '/functions/v1/billing/catalog';
-    const res = await fetch(url);
-    const json = await res.json();
-    if (res.ok && Array.isArray(json.catalog) && json.catalog.length) {
-      return { catalog: json.catalog };
-    }
-    // Fallback: query directly through supabase (read-only) if server function not deployed or empty
-    const { data: products, error: pErr } = await supabase.from('products').select('id,slug,type,name,description,entitlement_scopes');
-    if (pErr) return { catalog: [], error: json.error || pErr.message || 'catalog_error' };
-    const { data: prices, error: prErr } = await supabase.from('prices').select('id,product_id,billing_cycle,currency,unit_amount,provider,is_active').eq('is_active', true);
-    if (prErr) return { catalog: [], error: json.error || prErr.message || 'catalog_error' };
-    const grouped: Record<string, any> = {};
-    for (const p of products) grouped[p.id] = { ...p, prices: [] };
-    for (const price of prices) {
-      if (grouped[price.product_id]) grouped[price.product_id].prices.push(price);
-    }
-    return { catalog: Object.values(grouped) as CatalogProduct[] };
-  } catch (e) {
-    return { catalog: [], error: (e as Error).message };
-  }
-}
-
-export async function getSubscriptions(): Promise<SubscriptionSummary[]> {
-  const { data, error } = await supabase.from('subscriptions').select('id,status,current_period_end');
-  if (error) return [];
-  return data as any;
-}
-
-// Create subscription (Razorpay) via edge function
-export async function createSubscription(priceId: string): Promise<any> {
-  try {
-    const token = (await supabase.auth.getSession()).data.session?.access_token;
-    const res = await fetch('/functions/v1/billing/create-subscription', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' }, body: JSON.stringify({ price_id: priceId }) });
-    return await res.json();
-  } catch (e) { return { error: (e as Error).message }; }
-}
-
-export async function cancelSubscription(subscriptionId: string): Promise<any> {
-  try {
-    const token = (await supabase.auth.getSession()).data.session?.access_token;
-    const res = await fetch('/functions/v1/billing/cancel-subscription', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' }, body: JSON.stringify({ subscription_id: subscriptionId }) });
-    return await res.json();
-  } catch (e) { return { error: (e as Error).message }; }
-}
-
-export interface PurchaseRecord { id: string; product_id: string; status: string; amount_total?: number; currency?: string; paid_at?: string }
-export async function getPurchases(): Promise<PurchaseRecord[]> {
-  try {
-    const user = (await supabase.auth.getUser()).data.user;
-    if (!user) return [];
-    const { data, error } = await supabase
-      .from('purchases')
-      .select('id, product_id, status, amount_total, currency, paid_at')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(50);
-    if (error) return [];
-    return data as any;
-  } catch (_) { return []; }
-}
-
-// (Removed legacy direct DB cancelSubscription helper in favor of provider-backed function)
+// (Continue with next existing exports below after removed section)
 
 export const loadChallenges = async () => {
   try {
-    const { data, error } = await supabase
+    let data: any[] | null = null;
+    let error: any = null;
+    // Attempt full expanded query first
+    const full = await supabase
       .from('challenges')
-      .select(`
-        *,
-        questions:challenge_questions(*)
-      `)
+      .select(`*, questions:challenge_questions(*)`)
       .eq('status', 'approved')
       .order('created_at', { ascending: false });
+    data = full.data as any[] | null;
+    error = full.error;
 
+    // Fallback: if error (500 likely) or no data, try minimal columns then fetch questions separately per challenge
+    if (error) {
+      // eslint-disable-next-line no-console
+      console.warn('[loadChallenges] full query failed, attempting fallback minimal query', error.message);
+      const minimal = await supabase
+        .from('challenges')
+        .select('id,title,created_at,status')
+        .eq('status','approved')
+        .order('created_at', { ascending: false });
+      if (!minimal.error && minimal.data) {
+        // Fetch questions per challenge in parallel (batched)
+        const ids = minimal.data.map(c => c.id);
+        let questionsByChallenge: Record<string, any[]> = {};
+        if (ids.length) {
+          const qRes = await supabase.from('challenge_questions').select('*').in('challenge_id', ids);
+          if (!qRes.error && qRes.data) {
+            for (const q of qRes.data) {
+              (questionsByChallenge[q.challenge_id] = questionsByChallenge[q.challenge_id] || []).push(q);
+            }
+          }
+        }
+        data = minimal.data.map(c => ({ ...c, questions: questionsByChallenge[c.id] || [] }));
+        error = null; // recovered
+      }
+    }
     if (error) throw error;
 
     // Process challenges to ensure they have proper task structure
