@@ -7,6 +7,7 @@ import {
   Shield, Zap, PlayCircle
 } from 'lucide-react';
 import { getSkillPaths } from '../../lib/api';
+import { useCertificatePurchase } from '../../hooks/useCertificatePurchase';
 import { SkillPath } from '../../lib/types';
 import Card from '../../components/ui/Card';
 
@@ -203,6 +204,7 @@ const CertificationsPage = () => {
                     )}
                     {featured.title}
                   </h3>
+                  <FeaturedPrice certId={featured.id} />
                   <p className="text-gray-300 mb-6">
                     {featured.short_description || featured.description}
                   </p>
@@ -305,8 +307,7 @@ const CertificationsPage = () => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <Card 
-                  className="h-full hover:border-red-500/50 hover:shadow-md hover:shadow-red-500/10 transition-all duration-300 group cursor-pointer overflow-hidden"
-                  onClick={() => navigate(`/skill-paths/${cert.id}`)}
+                  className="h-full hover:border-red-500/50 hover:shadow-md hover:shadow-red-500/10 transition-all duration-300 group overflow-hidden"
                 >
                   {/* Cover Image */}
                   <div className="relative h-48 bg-gradient-to-br from-red-500/20 to-purple-600/20 rounded-t-xl overflow-hidden">
@@ -345,7 +346,7 @@ const CertificationsPage = () => {
                     )}
                   </div>
 
-                  <div className="p-6">
+                  <div className="p-6 flex flex-col h-[calc(100%-12rem)]">
                     <div className="flex items-start justify-between mb-3">
                       <h3 className="text-xl font-bold text-white group-hover:text-red-400 transition-colors line-clamp-2">
                         {cert.title}
@@ -376,7 +377,7 @@ const CertificationsPage = () => {
                       <span>Exam requires {passing}% to pass</span>
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-3">
                       <span className="text-xs text-gray-500 bg-slate-800 px-2 py-1 rounded">
                         {cert.category}
                       </span>
@@ -406,6 +407,15 @@ const CertificationsPage = () => {
                         </div>
                       )}
                     </div>
+                    <div className="mt-auto flex items-center justify-between gap-3">
+                      <PriceAndBuy certId={cert.id} navigateTo={() => navigate(`/skill-paths/${cert.id}`)} />
+                      <button
+                        onClick={() => navigate(`/skill-paths/${cert.id}`)}
+                        className="text-xs px-3 py-2 rounded bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white font-medium"
+                      >
+                        View
+                      </button>
+                    </div>
                   </div>
                 </Card>
               </motion.div>
@@ -427,3 +437,50 @@ const CertificationsPage = () => {
 };
 
 export default CertificationsPage;
+
+// Price and purchase UI for list cards
+const PriceAndBuy: React.FC<{ certId: string; navigateTo: () => void }> = ({ certId, navigateTo }) => {
+  const purchase = useCertificatePurchase(certId);
+  if (purchase.loading) return <div className="text-[10px] text-gray-500">Checking…</div>;
+  if (purchase.unlocked) return <span className="text-[10px] text-green-400">Unlocked</span>;
+  if (!purchase.price && !purchase.plan) return <span className="text-[10px] text-gray-400">Free</span>;
+  return (
+    <div className="flex items-center gap-2">
+      {purchase.plan && <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">In {purchase.plan}</span>}
+      {purchase.price && <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">₹{purchase.price}</span>}
+      {purchase.price && !purchase.unlocked && (
+        <button
+          onClick={(e) => { e.stopPropagation(); purchase.buy(); }}
+          disabled={purchase.purchasing}
+          className="text-[10px] px-2 py-1 rounded bg-emerald-600/70 hover:bg-emerald-600 text-white disabled:opacity-50"
+        >
+          {purchase.purchasing ? 'Buying…' : 'Buy'}
+        </button>
+      )}
+    </div>
+  );
+};
+
+// Featured section price UI
+const FeaturedPrice: React.FC<{ certId: string }> = ({ certId }) => {
+  const purchase = useCertificatePurchase(certId);
+  if (purchase.loading) return <div className="text-xs text-gray-500 mt-1">Checking access…</div>;
+  if (purchase.unlocked) return <div className="text-xs text-green-400 mt-1">Unlocked</div>;
+  if (!purchase.price && !purchase.plan) return null;
+  return (
+    <div className="flex items-center gap-2 mt-1 flex-wrap">
+      {purchase.plan && <span className="text-[11px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">In {purchase.plan} plan</span>}
+      {purchase.price && <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">₹{purchase.price}</span>}
+      {purchase.price && !purchase.unlocked && (
+        <button
+          onClick={() => purchase.buy()}
+          disabled={purchase.purchasing}
+          className="text-[11px] px-2 py-1 rounded bg-emerald-600/70 hover:bg-emerald-600 text-white disabled:opacity-50"
+        >
+          {purchase.purchasing ? 'Processing…' : 'Buy'}
+        </button>
+      )}
+      {purchase.error && <span className="text-[11px] text-red-400">{purchase.error}</span>}
+    </div>
+  );
+};

@@ -7,6 +7,7 @@ import {
   Lightbulb, Flag, Monitor, Shield, Terminal, AlertTriangle, BarChart3
 } from 'lucide-react';
 import { getSkillPath, enrollInSkillPath } from '../../lib/api';
+import { useCertificatePurchase } from '../../hooks/useCertificatePurchase';
 import { SkillPath, SkillPathItem } from '../../lib/types';
 import Card from '../../components/ui/Card';
 
@@ -17,6 +18,7 @@ const SkillPathPage = () => {
   const [loading, setLoading] = useState(true);
   const [enrolling, setEnrolling] = useState(false);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const purchase = useCertificatePurchase(id || '');
 
   useEffect(() => {
     if (id) loadSkillPath(id);
@@ -262,18 +264,44 @@ const SkillPathPage = () => {
               <div className="lg:col-span-1">
                 <Card className="p-6 border-red-500/20">
                   {!skillPath.user_progress ? (
-                    <button
-                      onClick={handleEnroll}
-                      disabled={enrolling}
-                      className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {enrolling ? (
-                        <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                    <div className="space-y-4">
+                      {/* Pricing / Access State */}
+                      {purchase.loading ? (
+                        <div className="text-xs text-gray-400">Checking access…</div>
+                      ) : purchase.unlocked ? (
+                        <div className="text-xs text-green-400">Unlocked</div>
+                      ) : purchase.price ? (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            {purchase.plan && <span className="text-[11px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">In {purchase.plan} plan</span>}
+                            <span className="text-[13px] px-2 py-1 rounded bg-emerald-600/20 text-emerald-300 font-semibold">₹{purchase.price}</span>
+                          </div>
+                          <button
+                            onClick={() => purchase.buy()}
+                            disabled={purchase.purchasing}
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            {purchase.purchasing ? 'Processing…' : 'Buy & Unlock'}
+                          </button>
+                          {purchase.error && <div className="text-xs text-red-400">{purchase.error}</div>}
+                          <div className="text-[10px] text-gray-500">One-time purchase unlocks this certification even without a plan.</div>
+                        </div>
                       ) : (
-                        <Play className="h-5 w-5 mr-2" />
+                        <div className="text-xs text-gray-400">Free Access</div>
                       )}
-                      {enrolling ? 'Enrolling...' : 'Enroll Now'}
-                    </button>
+                      <button
+                        onClick={handleEnroll}
+                        disabled={enrolling || (!purchase.unlocked && purchase.price != null)}
+                        className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {enrolling ? (
+                          <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                        ) : (
+                          <Play className="h-5 w-5 mr-2" />
+                        )}
+                        {enrolling ? 'Enrolling...' : (purchase.price && !purchase.unlocked ? 'Purchase Required' : 'Enroll Now')}
+                      </button>
+                    </div>
                   ) : skillPath.user_progress.status === 'completed' ? (
                     <div className="text-center">
                       <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">

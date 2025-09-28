@@ -58,6 +58,7 @@ const LeaderboardPage = lazy(() => import('./pages/leaderboard/LeaderboardPage')
 const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 const BillingPage = lazy(() => import('./pages/billing/index'));
 const BillingAdminPage = lazy(() => import('./pages/admin/BillingAdminPage')); // placeholder
+const SampleChallengePage = lazy(() => import('./pages/SampleChallenge'));
 
 // Error Pages (lazy)
 const NotFoundPage = lazy(() => import('./pages/error/NotFoundPage'));
@@ -97,6 +98,8 @@ function App() {
               <Route path="/skill-paths/:id" element={<SkillPathPage />} />
               <Route path="/leaderboard" element={<LeaderboardPage />} />
               <Route path="/billing" element={<BillingPage />} />
+              {/* Gated Sample Page (temporary) */}
+              <Route path="/sample-challenge" element={<SampleChallengePage />} />
               {/* Threat Intelligence removed */}
               
               {/* Operations Routes */}

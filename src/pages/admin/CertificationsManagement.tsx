@@ -5,6 +5,7 @@ import {
   Plus, Award, Edit, Trash2, Eye, Users, Trophy, Search, Star, Clock, Target, Layers
 } from 'lucide-react';
 import { getSkillPaths, deleteSkillPath } from '../../lib/api';
+import { useCertificatePurchase } from '../../hooks/useCertificatePurchase';
 import { Certification } from '../../lib/types';
 import Card from '../../components/ui/Card';
 
@@ -134,6 +135,7 @@ const CertificationsManagement = () => {
                           {cert.title}
                           {cert.is_featured && <Star className="h-4 w-4 text-yellow-400" />}
                         </h3>
+                        <CertificatePricing certId={cert.id} />
                         <div className="flex gap-2 mt-1 flex-wrap">
                           {cert.code && <span className="px-2 py-0.5 rounded bg-slate-700/50 text-xs text-gray-300 font-mono">{cert.code}</span>}
                           <span className={`px-2 py-0.5 rounded text-xs capitalize ${
@@ -211,3 +213,29 @@ const CertificationsManagement = () => {
 };
 
 export default CertificationsManagement;
+
+// Inline component for price & purchase (admin view demonstration)
+const CertificatePricing: React.FC<{ certId: string }> = ({ certId }) => {
+  const purchase = useCertificatePurchase(certId);
+  if (purchase.loading) return <div className="text-[10px] text-gray-500 mt-1">Checking access…</div>;
+  if (purchase.unlocked) return <div className="text-[10px] text-green-400 mt-1">Unlocked</div>;
+  if (!purchase.price && !purchase.plan) return <div className="text-[10px] text-gray-400 mt-1">Free</div>;
+  return (
+    <div className="flex items-center gap-2 mt-1 flex-wrap">
+      {purchase.plan && <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">In {purchase.plan} plan</span>}
+      {purchase.price && (
+        <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">₹{purchase.price}</span>
+      )}
+      {purchase.price && !purchase.unlocked && (
+        <button
+          onClick={() => purchase.buy()}
+          disabled={purchase.purchasing}
+          className="text-[10px] px-2 py-0.5 rounded bg-emerald-600/70 hover:bg-emerald-600 text-white disabled:opacity-50"
+        >
+          {purchase.purchasing ? 'Processing…' : 'Buy'}
+        </button>
+      )}
+      {purchase.error && <span className="text-[10px] text-red-400">{purchase.error}</span>}
+    </div>
+  );
+};

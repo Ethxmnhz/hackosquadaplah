@@ -2,24 +2,29 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ArrowLeft, Trophy, Clock, Users, CheckCircle, Terminal, 
-  Download, AlertTriangle, Target, Book, Shield, Flag,
-  Sword, Flame, Lock, ExternalLink, Play, Star, Award,
-  Lightbulb, Eye, EyeOff, Send, RefreshCw, Zap, Share2,
-  Bookmark, Settings, Heart, Copy, Code, ChevronDown,
-  ChevronRight, Timer, Check, X, Sparkles, Medal,
-  ThumbsUp, MessageSquare, RotateCcw, ArrowRight,
-  Monitor, Server, Globe, Power, PowerOff, Hash,
-  Layers, FileText, User, Calendar, MapPin
+  ArrowLeft, Trophy, AlertTriangle, Target, Lock,
+  RefreshCw, Bookmark, Settings, ChevronDown, ChevronRight, Play, CheckCircle,
+  Monitor, ExternalLink, Timer, PowerOff, Check, RotateCcw
 } from 'lucide-react';
 import { getChallenge, submitChallengeAnswer } from '../../lib/api';
 import { Challenge } from '../../lib/types';
-import { supabase } from '../../lib/supabase';
+// Temporary augmentation for dynamic challenge shape coming from API
+declare module '../../lib/types' {
+  interface Challenge {
+    answered_questions?: Set<string>;
+    is_enhanced_challenge?: boolean;
+  }
+  interface ChallengeTask {
+    lab_environment?: any;
+  }
+}
 import Card from '../../components/ui/Card';
+import { useContentAccess } from '../../hooks/useContentAccess';
 import MarkdownRenderer from '../../components/ui/MarkdownRenderer';
 
 const ChallengePage = () => {
   const { id } = useParams();
+  const access = useContentAccess('challenge', id || '');
   const navigate = useNavigate();
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,13 +36,16 @@ const ChallengePage = () => {
     alreadyAnswered?: boolean;
     attempts?: number;
   }>>({});
+  // @ts-ignore legacy state not used in gated view
   const [activeSection, setActiveSection] = useState('challenge');
   const [showHints, setShowHints] = useState<Record<string, boolean>>({});
   const [refreshing, setRefreshing] = useState(false);
   const [expandedTasks, setExpandedTasks] = useState<Record<string, boolean>>({});
   const [challengeStarted, setChallengeStarted] = useState(false);
+  // @ts-ignore legacy timer state (not critical for gating)
   const [timeSpent, setTimeSpent] = useState(0);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  // @ts-ignore legacy social state
   const [isLiked, setIsLiked] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
   const [failedAttempts, setFailedAttempts] = useState<Record<string, number>>({});
@@ -49,8 +57,10 @@ const ChallengePage = () => {
   const [taskLabEndTime, setTaskLabEndTime] = useState<Record<string, Date | null>>({});
 
   useEffect(() => {
-    if (id) loadChallengeData(id);
-  }, [id]);
+    if (id && access.allow) loadChallengeData(id);
+  }, [id, access.allow]);
+
+  // (Moved gating + loading returns to bottom after all hooks to preserve hook order)
 
   const loadChallengeData = async (challengeId: string, preserveExpandedState = false) => {
     setLoading(true);
@@ -71,8 +81,8 @@ const ChallengePage = () => {
         
         // For enhanced challenges, mark answered questions as correct
         if (challengeData.is_enhanced_challenge) {
-          challengeData.tasks?.forEach(task => {
-            task.questions?.forEach(question => {
+          challengeData.tasks?.forEach((task: any) => {
+            task.questions?.forEach((question: any) => {
               if (challengeData.answered_questions?.has(question.id)) {
                 preResults[question.id] = {
                   isCorrect: true,
@@ -85,7 +95,7 @@ const ChallengePage = () => {
           });
         } else {
           // Legacy challenges
-          challengeData.questions?.forEach(question => {
+          challengeData.questions?.forEach((question: any) => {
             if (challengeData.answered_questions?.has(question.id)) {
               preResults[question.id] = {
                 isCorrect: true,
@@ -105,8 +115,8 @@ const ChallengePage = () => {
         const newExpandedTasks: Record<string, boolean> = {};
         
         // Find the first task with unanswered questions
-        for (const task of challengeData.tasks) {
-          const hasUnansweredQuestions = task.questions?.some(q => 
+        for (const task of challengeData.tasks as any[]) {
+          const hasUnansweredQuestions = task.questions?.some((q: any) => 
             !challengeData.answered_questions?.has(q.id)
           );
           
@@ -187,10 +197,10 @@ const ChallengePage = () => {
     }
   };
 
-  const handleTerminateTaskLab = async (taskId: string) => {
-    setTaskLabStatus(prev => ({ ...prev, [taskId]: 'inactive' }));
-    setTaskLabEndTime(prev => ({ ...prev, [taskId]: null }));
-  };
+  // const handleTerminateTaskLab = async (taskId: string) => {
+  //   setTaskLabStatus(prev => ({ ...prev, [taskId]: 'inactive' }));
+  //   setTaskLabEndTime(prev => ({ ...prev, [taskId]: null }));
+  // };
 
   const formatTimeRemaining = (endTime: Date) => {
     const now = new Date();
@@ -285,13 +295,13 @@ const ChallengePage = () => {
     setSubmitting(prev => ({ ...prev, [questionId]: false }));
   };
 
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-    }
-  };
+  // const copyToClipboard = async (text: string) => {
+  //   try {
+  //     await navigator.clipboard.writeText(text);
+  //   } catch (err) {
+  //     console.error('Failed to copy text: ', err);
+  //   }
+  // };
 
   const getTaskStatus = (taskId: string) => {
     const task = challenge?.tasks?.find(t => t.id === taskId);
@@ -351,20 +361,17 @@ const ChallengePage = () => {
     }).length || 0;
   };
 
-  const getTotalAnsweredQuestions = () => {
-    let answered = Object.values(questionResults).filter(r => r.isCorrect).length;
-    
-    // Add already answered questions count for enhanced challenges
-    if (challenge?.is_enhanced_challenge && challenge.answered_questions) {
-      answered += challenge.answered_questions.size;
-    }
-    
-    return answered;
-  };
+  // const getTotalAnsweredQuestions = () => {
+  //   let answered = Object.values(questionResults).filter(r => r.isCorrect).length;
+  //   if (challenge?.is_enhanced_challenge && challenge.answered_questions) {
+  //     answered += challenge.answered_questions.size;
+  //   }
+  //   return answered;
+  // };
 
-  const getTotalQuestions = () => {
-    return challenge?.tasks?.reduce((sum, task) => sum + (task.questions?.length || 0), 0) || 0;
-  };
+  // const getTotalQuestions = () => {
+  //   return challenge?.tasks?.reduce((sum, task) => sum + (task.questions?.length || 0), 0) || 0;
+  // };
 
   const canShowHints = (questionId: string) => {
     return (failedAttempts[questionId] || 0) >= 2;
@@ -385,18 +392,62 @@ const ChallengePage = () => {
     }
   };
 
-  const getCategoryIcon = (type: string) => {
-    switch (type) {
-      case 'web':
-        return <Shield className="h-6 w-6" />;
-      case 'network':
-        return <Terminal className="h-6 w-6" />;
-      case 'crypto':
-        return <Lock className="h-6 w-6" />;
-      default:
-        return <Target className="h-6 w-6" />;
-    }
-  };
+  // const getCategoryIcon = (type: string) => {
+  //   switch (type) {
+  //     case 'web': return <Shield className="h-6 w-6" />;
+  //     case 'network': return <Terminal className="h-6 w-6" />;
+  //     case 'crypto': return <Lock className="h-6 w-6" />;
+  //     default: return <Target className="h-6 w-6" />;
+  //   }
+  // };
+
+  // Access gating & loading (placed after all hooks & effects) ------------------
+  if (access.loading) {
+    return (
+      <div className="p-6 max-w-3xl mx-auto animate-pulse">
+        <div className="h-5 w-32 bg-neutral-800 rounded mb-6" />
+        <div className="h-10 bg-neutral-800/60 rounded mb-4" />
+        <div className="space-y-2">
+          <div className="h-3 bg-neutral-800/40 rounded w-5/6" />
+          <div className="h-3 bg-neutral-800/40 rounded w-4/6" />
+          <div className="h-3 bg-neutral-800/40 rounded w-3/6" />
+        </div>
+      </div>
+    );
+  }
+
+  if (id && !access.allow) {
+    return (
+      <div className="p-6 max-w-3xl mx-auto">
+        <button onClick={() => navigate(-1)} className="text-sm text-dim hover:text-white flex items-center gap-1 mb-6"><ArrowLeft size={14}/> Back</button>
+        <div className="border border-neutral-800 rounded-lg p-8 bg-neutral-900/60 backdrop-blur">
+          <div className="flex items-center gap-3 mb-4">
+            <Lock className="text-amber-400" size={28} />
+            <h1 className="text-2xl font-semibold tracking-wide">Challenge Locked</h1>
+          </div>
+          <p className="text-sm text-neutral-300 mb-4">
+            This challenge is gated. {access.required_plan ? (
+              <>It requires the <span className="font-semibold text-white">{access.required_plan.toUpperCase()}</span> plan.</>
+            ) : access.individual_price !== null ? (
+              <>Purchase access (individual price: <span className="font-mono">{access.individual_price}</span> units) to unlock.</>
+            ) : (
+              <>Upgrade your plan or purchase access to continue.</>
+            )}
+          </p>
+          <div className="flex flex-wrap gap-3">
+            {access.required_plan && (
+              <a href="/billing" className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-sm font-medium rounded transition">Upgrade Plan</a>
+            )}
+            {access.individual_price !== null && (
+              <a href={`/store/challenge/${id}`} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-sm font-medium rounded transition">Buy Access</a>
+            )}
+            <button onClick={() => access.refresh(true)} className="px-3 py-2 text-xs border border-neutral-700 rounded hover:border-neutral-500">Retry Check</button>
+          </div>
+          {access.reason && <div className="mt-4 text-xs text-neutral-500">Reason: {access.reason}</div>}
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -600,7 +651,7 @@ const ChallengePage = () => {
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          onClick={() => window.open(challenge.lab_environment.web_app_url, '_blank')}
+                          onClick={() => challenge?.lab_environment?.web_app_url && window.open(challenge.lab_environment.web_app_url, '_blank')}
                           className="bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center w-full text-sm"
                         >
                           <ExternalLink className="h-4 w-4 mr-2" />
@@ -788,7 +839,7 @@ const ChallengePage = () => {
                                   
                                   {taskLabEndTime[task.id] && (
                                     <div className="bg-red-900/20 px-2 py-1 rounded text-xs text-red-300 border border-red-500/30">
-                                      {formatTimeRemaining(taskLabEndTime[task.id])}
+                                      {taskLabEndTime[task.id] ? formatTimeRemaining(taskLabEndTime[task.id] as Date) : '—'}
                                     </div>
                                   )}
                                 </div>

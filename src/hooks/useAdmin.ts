@@ -23,22 +23,21 @@ export const useAdmin = () => {
       }
 
       try {
-        // Check if user is in admin_users table
+        // New: Check admin_roles instead of non-existent admin_users
         const { data, error } = await supabase
-          .from('admin_users')
-          .select('id')
-          .eq('id', user.id)
-          .single();
+          .from('admin_roles')
+          .select('user_id')
+          .eq('user_id', user.id)
+          .limit(1);
 
         if (error) {
           console.error('Error checking admin status:', error);
-          // Don't grant admin access on error
           setIsAdmin(false);
         } else {
-          setIsAdmin(!!data);
+          setIsAdmin(!!data && data.length > 0);
         }
-      } catch (error) {
-        console.error('Exception checking admin status:', error);
+      } catch (err) {
+        console.error('Exception checking admin status:', err);
         setIsAdmin(false);
       } finally {
         setLoading(false);
