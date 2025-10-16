@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 
 import { useAuth } from './hooks/useAuth';
 import AuthGuard from './components/guards/AuthGuard';
-import GuestGuard from './components/guards/GuestGuard';
+import GuestGuard from './components/guards/GuesetGuard';
 import AdminGuard from './components/guards/AdminGuard';
 
 // Layouts
