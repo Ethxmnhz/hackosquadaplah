@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Menu, ChevronDown, LogOut, Settings, User,
   Trophy, BookOpen, Award, FlaskRound as Flask, Flag, Monitor,
-  Plus, FolderCheck, Target, Shield
+  Plus, FolderCheck, Target, Shield, Sparkles, Crown, Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../hooks/useAuth';
+import ConnectWallet from '../onchain/ConnectWallet';
 
 interface NavbarProps {
   onMenuClick: () => void;
@@ -22,13 +23,20 @@ interface DropdownItem {
 
 const Navbar = ({ onMenuClick }: NavbarProps) => {
   const { signOut, user } = useAuth();
-  // Billing modal removed for Upgrade; now direct navigation to /billing
-  // Removed unused location & navigate to satisfy linter
+  const location = useLocation();
+  const navigate = useNavigate();
   
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLearnMenu, setShowLearnMenu] = useState(false);
   const [showOperationsMenu, setShowOperationsMenu] = useState(false);
   const [showCreateMenu, setShowCreateMenu] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const onScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -158,35 +166,43 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
   );
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md border-b border-red-500/20" style={{ backgroundColor: '#0A030F' }}>
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 backdrop-blur-xl border-b 
+        ${scrollY > 4 ? 'bg-[#09030F]/85 border-red-500/30 shadow-[0_4px_24px_-6px_rgba(0,0,0,0.6)]' : 'bg-[#0A030F]/70 border-red-500/10'}
+      `}
+    >
       <div className="px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Left Section */}
-          <div className="flex items-center space-x-4">
-            {/* Mobile menu button */}
+        <div className="flex justify-between items-center h-[68px] gap-6">
+          {/* Left Cluster */}
+          <div className="flex items-center gap-4">
             <button
               type="button"
-              className="inline-flex md:hidden items-center justify-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-slate-800/50 transition-all duration-200"
+              className="inline-flex lg:hidden items-center justify-center p-2 rounded-lg text-gray-400 hover:text-white hover:bg-slate-800/50 transition-colors"
               onClick={onMenuClick}
             >
               <Menu className="h-6 w-6" />
             </button>
-            
-            {/* Brand Text - Only show on mobile when sidebar is closed */}
-            <div className="md:hidden flex items-center">
-              <span className="text-xl font-bold text-white">
-                <span className="text-red-400">Hacko</span>Squad
-              </span>
+            <button
+              onClick={() => navigate('/')}
+              className="group relative flex items-center justify-center h-10 w-10 rounded-lg bg-red-600/10 border border-red-500/30 hover:border-red-400/50 hover:bg-red-600/20 transition-colors"
+              aria-label="Home"
+            >
+              <Sparkles className="h-5 w-5 text-red-400 group-hover:rotate-12 transition-transform" />
+            </button>
+            <div className="hidden xl:flex items-center gap-2 text-[11px] px-2.5 py-1 rounded-full bg-red-600/10 border border-red-500/30 text-red-300 uppercase tracking-wide">
+              <Crown className="h-3.5 w-3.5" /> Beta Access
             </div>
           </div>
-          
-          {/* Center Section - Navigation Menu */}
-          <div className="hidden md:flex items-center space-x-8">
+
+          {/* Center Navigation */}
+          <div className="hidden md:flex items-center space-x-2 xl:space-x-4">
             {/* Learn Dropdown */}
             <div className="relative dropdown-container">
               <button
                 type="button"
-                className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all duration-200 group"
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-sm font-medium 
+                  ${showLearnMenu || location.pathname.startsWith('/challenge') ? 'bg-red-600/20 text-red-300' : 'text-gray-300 hover:text-white hover:bg-slate-800/50'}
+                `}
                 onClick={() => {
                   setShowLearnMenu(!showLearnMenu);
                   setShowOperationsMenu(false);
@@ -209,7 +225,9 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
             <div className="relative dropdown-container">
               <button
                 type="button"
-                className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all duration-200 group"
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-sm font-medium 
+                  ${showOperationsMenu || location.pathname.startsWith('/red') || location.pathname.startsWith('/blue') ? 'bg-red-600/20 text-red-300' : 'text-gray-300 hover:text-white hover:bg-slate-800/50'}
+                `}
                 onClick={() => {
                   setShowOperationsMenu(!showOperationsMenu);
                   setShowLearnMenu(false);
@@ -232,7 +250,9 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
             <div className="relative dropdown-container">
               <button
                 type="button"
-                className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all duration-200 group"
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-sm font-medium 
+                  ${showCreateMenu || location.pathname.startsWith('/creator') ? 'bg-red-600/20 text-red-300' : 'text-gray-300 hover:text-white hover:bg-slate-800/50'}
+                `}
                 onClick={() => {
                   setShowCreateMenu(!showCreateMenu);
                   setShowLearnMenu(false);
@@ -254,31 +274,36 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
             {/* Direct Links */}
             <Link
               to="/leaderboard"
-              className="flex items-center gap-2 px-4 py-2 text-gray-300 hover:text-white hover:bg-slate-800/50 rounded-xl transition-all duration-200"
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-sm font-medium 
+                ${location.pathname.startsWith('/leaderboard') ? 'bg-red-600/20 text-red-300' : 'text-gray-300 hover:text-white hover:bg-slate-800/50'}
+              `}
             >
               <Trophy className="h-5 w-5" />
               <span className="font-medium">Leaderboard</span>
             </Link>
           </div>
           
-          {/* Right Section */}
-          <div className="flex items-center space-x-3">
-            {/* Upgrade Button */}
+          {/* Right Cluster */}
+          <div className="flex items-center gap-3">
+            {/* Onchain Wallet Connect */}
+            <div className="hidden md:block">
+              <ConnectWallet />
+            </div>
             <Link
               to="/billing"
-              className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-red-500 to-purple-600 text-white shadow-lg hover:shadow-red-500/30 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500/50"
+              className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold tracking-wide bg-gradient-to-r from-red-600 via-rose-600 to-fuchsia-600 text-white shadow shadow-red-800/40 hover:brightness-110 transition-all"
             >
-              <span>Upgrade</span>
+              <Star className="h-4 w-4" /> Upgrade
             </Link>
             {/* User Menu */}
             <div className="relative dropdown-container">
               <button
                 type="button"
-                className="flex items-center space-x-3 text-gray-400 hover:text-white focus:outline-none group"
+                className="flex items-center space-x-3 text-gray-400 hover:text-white focus:outline-none group px-2 py-1.5 rounded-xl hover:bg-slate-800/40 transition-colors"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
                 <div className="relative">
-                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-red-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg group-hover:shadow-xl transition-all duration-200">
+                  <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-red-600 to-fuchsia-600 flex items-center justify-center text-white font-bold shadow-lg group-hover:shadow-xl transition-all duration-200">
                     {userInitials}
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-slate-900"></div>
@@ -287,7 +312,7 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
                   <p className="text-sm font-medium text-white">
                     {user?.user_metadata?.username || 'Anonymous'}
                   </p>
-                  <p className="text-xs text-gray-400">Cybersecurity Expert</p>
+                  <p className="text-[11px] text-gray-400">Cyber Ops</p>
                 </div>
                 <ChevronDown className="h-4 w-4 group-hover:text-red-400 transition-colors" />
               </button>
@@ -299,21 +324,21 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute top-full right-0 mt-2 w-72 border border-red-500/20 rounded-xl shadow-xl overflow-hidden"
+                    className="absolute top-full right-0 mt-2 w-72 border border-red-500/30 rounded-2xl shadow-xl overflow-hidden backdrop-blur-xl"
                     style={{ backgroundColor: '#0A030F' }}
                   >
                     {/* User Info Header */}
-                    <div className="p-4 bg-gradient-to-r from-red-500/10 to-purple-600/10 border-b border-red-500/20">
+                    <div className="p-4 bg-gradient-to-r from-red-600/20 to-fuchsia-600/10 border-b border-red-500/30">
                       <div className="flex items-center space-x-3">
-                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-red-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-red-600 to-fuchsia-600 flex items-center justify-center text-white font-bold">
                           {userInitials}
                         </div>
                         <div>
                           <p className="font-semibold text-white">
                             {user?.user_metadata?.username || 'Anonymous'}
                           </p>
-                          <p className="text-sm text-red-400">Cybersecurity Expert</p>
-                          <p className="text-xs text-gray-400">{user?.email}</p>
+                          <p className="text-xs text-red-300">Active User</p>
+                          <p className="text-[11px] text-gray-400">{user?.email}</p>
                         </div>
                       </div>
                     </div>
@@ -322,7 +347,7 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
                     <div className="p-2">
                       <Link
                         to="/profile"
-                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-slate-800/50 hover:text-white rounded-lg transition-colors"
+                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-red-600/10 hover:text-white rounded-lg transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <User className="h-5 w-5 mr-3" />
@@ -331,7 +356,7 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
                       
                       <Link
                         to="/leaderboard"
-                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-slate-800/50 hover:text-white rounded-lg transition-colors"
+                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-red-600/10 hover:text-white rounded-lg transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Trophy className="h-5 w-5 mr-3" />
@@ -340,16 +365,25 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
                       
                       <Link
                         to="/profile?tab=achievements"
-                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-slate-800/50 hover:text-white rounded-lg transition-colors"
+                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-red-600/10 hover:text-white rounded-lg transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Award className="h-5 w-5 mr-3" />
                         Achievements
                       </Link>
+
+                      <Link
+                        to="/certs/mine"
+                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-red-600/10 hover:text-white rounded-lg transition-colors"
+                        onClick={() => setShowUserMenu(false)}
+                      >
+                        <Award className="h-5 w-5 mr-3" />
+                        My Certificates (Onchain)
+                      </Link>
                       
                       <Link
                         to="/profile?tab=settings"
-                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-slate-800/50 hover:text-white rounded-lg transition-colors"
+                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-red-600/10 hover:text-white rounded-lg transition-colors"
                         onClick={() => setShowUserMenu(false)}
                       >
                         <Settings className="h-5 w-5 mr-3" />
@@ -360,7 +394,7 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
                       
                       <button
                         onClick={handleSignOut}
-                        className="flex w-full items-center px-3 py-2 text-sm text-gray-300 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-colors"
+                        className="flex w-full items-center px-3 py-2 text-sm text-gray-300 hover:bg-red-600/10 hover:text-red-300 rounded-lg transition-colors"
                       >
                         <LogOut className="h-5 w-5 mr-3" />
                         Sign Out

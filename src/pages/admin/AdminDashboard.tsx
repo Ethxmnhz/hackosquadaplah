@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -192,14 +191,9 @@ const AdminDashboard = () => {
       setError('');
       const { error } = await supabase
         .from('challenges')
-        .update({
-          status: 'approved',
-          approved_at: new Date().toISOString()
-        })
+        .update({ status: 'approved', approved_at: new Date().toISOString() })
         .eq('id', challenge.id);
-
       if (error) throw error;
-      
       setSuccess('Challenge approved successfully!');
       await loadAdminData();
     } catch (error) {
@@ -213,19 +207,13 @@ const AdminDashboard = () => {
       setError('Please provide feedback for rejection');
       return;
     }
-
     try {
       setError('');
       const { error } = await supabase
         .from('challenges')
-        .update({
-          status: 'rejected',
-          feedback
-        })
+        .update({ status: 'rejected', feedback: feedback })
         .eq('id', challenge.id);
-
       if (error) throw error;
-      
       setFeedback('');
       setSelectedChallenge(null);
       setSuccess('Challenge rejected with feedback');

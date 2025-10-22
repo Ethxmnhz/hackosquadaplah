@@ -1,0 +1,1036 @@
+{
+  "profiles": [
+    {
+      "id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "username": "Hacker",
+      "email": "shaikhminhaz1975@gmail.com",
+      "created_at": "2025-06-01T16:46:11.847373+00:00",
+      "team_id": null,
+      "points": 0,
+      "avatar_url": null
+    },
+    {
+      "id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "username": "Hacker2",
+      "email": "22dec12@aiktc.ac.in",
+      "created_at": "2025-06-11T12:01:14.632501+00:00",
+      "team_id": null,
+      "points": 0,
+      "avatar_url": null
+    },
+    {
+      "id": "64bec22d-3cab-48dc-a02e-75f3162909f8",
+      "username": "Abhayraj",
+      "email": "abhayraj27052005@gmail.com",
+      "created_at": "2025-07-01T15:44:21.286+00:00",
+      "team_id": null,
+      "points": 0,
+      "avatar_url": null
+    },
+    {
+      "id": "0725b122-3570-4002-b2e7-47e183f54a55",
+      "username": "hackerrd",
+      "email": "rahul2108dewangan@gmail.com",
+      "created_at": "2025-07-02T15:49:04.869+00:00",
+      "team_id": null,
+      "points": 0,
+      "avatar_url": null
+    },
+    {
+      "id": "0fab8fb6-7194-417c-a958-98d6894cf688",
+      "username": "Broly",
+      "email": "abubakarpro36@gmail.com",
+      "created_at": "2025-07-14T18:24:03.661+00:00",
+      "team_id": null,
+      "points": 0,
+      "avatar_url": null
+    },
+    {
+      "id": "6dfea3fd-e0e2-4512-9078-cd8658d76b7c",
+      "username": "ethxmnhz",
+      "email": "mnhzspare@gmail.com",
+      "created_at": "2025-08-17T07:03:27.85+00:00",
+      "team_id": null,
+      "points": 0,
+      "avatar_url": null
+    },
+    {
+      "id": "6fd40b87-0051-40fe-ba61-5d6887a9987b",
+      "username": "minhaz",
+      "email": "officialmnhz@gmail.com",
+      "created_at": "2025-09-28T11:01:36.819+00:00",
+      "team_id": null,
+      "points": 0,
+      "avatar_url": null
+    }
+  ],
+  "tags": [
+    {
+      "id": "b798d624-ae0b-4234-ad2c-313791a0d804",
+      "name": "Web Security",
+      "category": "Skill",
+      "created_at": "2025-06-03T12:22:41.073544+00:00"
+    },
+    {
+      "id": "82cd6d11-0886-4ce1-b556-c320f9aaa605",
+      "name": "Network Security",
+      "category": "Skill",
+      "created_at": "2025-06-03T12:22:41.073544+00:00"
+    },
+    {
+      "id": "51c154b7-3f09-4c9b-80a3-6f7b673f20a2",
+      "name": "Active Directory",
+      "category": "Skill",
+      "created_at": "2025-06-03T12:22:41.073544+00:00"
+    },
+    {
+      "id": "095d7641-1ff6-4d33-903e-7cef3e9145f9",
+      "name": "Privilege Escalation",
+      "category": "Skill",
+      "created_at": "2025-06-03T12:22:41.073544+00:00"
+    },
+    {
+      "id": "e78d7c89-e68f-4b6b-b7d5-09e57e8e0b97",
+      "name": "Cloud Security",
+      "category": "Skill",
+      "created_at": "2025-06-03T12:22:41.073544+00:00"
+    },
+    {
+      "id": "c8818777-2543-4f41-b145-375f9ec8395f",
+      "name": "Mobile Security",
+      "category": "Skill",
+      "created_at": "2025-06-03T12:22:41.073544+00:00"
+    },
+    {
+      "id": "f658195c-0dac-4bbc-b120-291175b889d7",
+      "name": "OWASP Top 10",
+      "category": "Category",
+      "created_at": "2025-06-03T12:22:41.073544+00:00"
+    },
+    {
+      "id": "2a685aa7-38b7-4c7e-8874-41c38bf745d4",
+      "name": "CTF",
+      "category": "Category",
+      "created_at": "2025-06-03T12:22:41.073544+00:00"
+    },
+    {
+      "id": "9d9133b2-6818-452a-9ba3-30fb59e2dd0f",
+      "name": "Beginner",
+      "category": "Level",
+      "created_at": "2025-06-03T12:22:41.073544+00:00"
+    },
+    {
+      "id": "a4538094-8f5a-4d54-9c77-ac99aa6afda8",
+      "name": "Intermediate",
+      "category": "Level",
+      "created_at": "2025-06-03T12:22:41.073544+00:00"
+    },
+    {
+      "id": "4c7bd13a-18c8-4996-b5df-6f69612177cc",
+      "name": "Advanced",
+      "category": "Level",
+      "created_at": "2025-06-03T12:22:41.073544+00:00"
+    },
+    {
+      "id": "b8ce046a-7d04-4496-b55d-76c88b896f08",
+      "name": "Expert",
+      "category": "Level",
+      "created_at": "2025-06-03T12:22:41.073544+00:00"
+    }
+  ],
+  "skill_paths": [
+    {
+      "id": "67c24a4a-c1aa-44c0-82e2-d71d52897903",
+      "title": "Junior Penetration Testor",
+      "description": "MaxSec Junior Penetration Tester is a hands‑on, practical course designed to prepare students for entry‑level offensive security roles. Through guided labs and real‑world scenarios you will learn: information gathering and reconnaissance, scanning & enumeration, vulnerability analysis, exploitation fundamentals, post‑exploitation techniques, and targeted web application testing. The program concludes with a practical, time‑bound assessment to verify applied competency and readiness for junior penetration testing tasks.",
+      "short_description": "Junior Penetration Tester (MJPT) ",
+      "difficulty": "intermediate",
+      "estimated_duration": 54,
+      "total_points": 125,
+      "category": "Network Security",
+      "prerequisites": [],
+      "learning_objectives": [],
+      "cover_image": "https://drive.google.com/file/d/1WMEVh_u-ODWCHic0W6zxhMNOLLGw0_sv/view",
+      "is_published": true,
+      "created_at": "2025-10-20T10:57:31.533763+00:00",
+      "updated_at": "2025-10-20T11:14:40.095494+00:00",
+      "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "enrolled_count": 1,
+      "code": "MJPT",
+      "icon_url": "https://drive.google.com/file/d/1WMEVh_u-ODWCHic0W6zxhMNOLLGw0_sv/view",
+      "certificate_image_url": "https://drive.google.com/file/d/1x6oWEGpQtq_wft5W514EelOL4pdCViz0/",
+      "exam_type": "timed_exam",
+      "exam_duration_minutes": 1440,
+      "passing_score_percent": 80,
+      "max_attempts": 2,
+      "cooldown_hours_between_attempts": null,
+      "validity_period_days": null,
+      "recommended_experience": null,
+      "delivery_mode": null,
+      "certificate_title_override": null,
+      "certificate_subtitle": null,
+      "issuer_name": "Hackosquad",
+      "issuer_signature_url": null,
+      "metadata_json": null,
+      "is_featured": true,
+      "tags": []
+    }
+  ],
+  "badges": [
+    {
+      "id": "1afda876-71e7-45b5-a06a-9e2c23567f56",
+      "name": "First Steps",
+      "description": "Complete your first challenge",
+      "icon_url": null,
+      "icon_class": "baby",
+      "color": "#4CAF50",
+      "category": "achievement",
+      "rarity": "common",
+      "requirements": null,
+      "points_required": 0,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "a51ca6af-a730-41bc-9eff-40ba10aff2d9",
+      "name": "Getting Started",
+      "description": "Earn your first 100 points",
+      "icon_url": null,
+      "icon_class": "star",
+      "color": "#2196F3",
+      "category": "achievement",
+      "rarity": "common",
+      "requirements": null,
+      "points_required": 100,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "68e6cd00-31fd-491f-9b23-c148ddc5c4c7",
+      "name": "Point Collector",
+      "description": "Earn 500 points",
+      "icon_url": null,
+      "icon_class": "gem",
+      "color": "#9C27B0",
+      "category": "achievement",
+      "rarity": "rare",
+      "requirements": null,
+      "points_required": 500,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "57926f75-049d-4251-8943-f152a334efcd",
+      "name": "Elite Hacker",
+      "description": "Earn 1000 points",
+      "icon_url": null,
+      "icon_class": "crown",
+      "color": "#FF9800",
+      "category": "achievement",
+      "rarity": "epic",
+      "requirements": null,
+      "points_required": 1000,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "d706b75c-0f65-4c85-a8e7-2e54c9ca9213",
+      "name": "Legendary",
+      "description": "Earn 2500 points",
+      "icon_url": null,
+      "icon_class": "zap",
+      "color": "#F44336",
+      "category": "achievement",
+      "rarity": "legendary",
+      "requirements": null,
+      "points_required": 2500,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "8e4c46d8-09b4-4bd7-a6e9-eccddaaf6034",
+      "name": "Challenge Master",
+      "description": "Complete 10 challenges",
+      "icon_url": null,
+      "icon_class": "target",
+      "color": "#FF5722",
+      "category": "skill",
+      "rarity": "rare",
+      "requirements": null,
+      "points_required": 0,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "337c676e-07fb-4c06-8cf5-9e300e25aec7",
+      "name": "Lab Expert",
+      "description": "Complete 5 labs",
+      "icon_url": null,
+      "icon_class": "flask-conical",
+      "color": "#00BCD4",
+      "category": "skill",
+      "rarity": "rare",
+      "requirements": null,
+      "points_required": 0,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "af6cb7d3-08ad-42a7-a399-a5639ac69ea2",
+      "name": "Speed Demon",
+      "description": "Complete a challenge in under 5 minutes",
+      "icon_url": null,
+      "icon_class": "zap",
+      "color": "#FFEB3B",
+      "category": "special",
+      "rarity": "epic",
+      "requirements": null,
+      "points_required": 0,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "6ebf738a-6cf1-4588-9da2-0d5115baac43",
+      "name": "Streak Master",
+      "description": "Maintain a 7-day streak",
+      "icon_url": null,
+      "icon_class": "flame",
+      "color": "#FF5722",
+      "category": "special",
+      "rarity": "rare",
+      "requirements": null,
+      "points_required": 0,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "007e4f6a-7ece-4299-9fe5-cc7f94dd7e75",
+      "name": "Team Player",
+      "description": "Join your first team",
+      "icon_url": null,
+      "icon_class": "users",
+      "color": "#4CAF50",
+      "category": "social",
+      "rarity": "common",
+      "requirements": null,
+      "points_required": 0,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "b0039173-4f32-466d-81df-faf919ccd1d4",
+      "name": "Web Warrior",
+      "description": "Complete 5 web challenges",
+      "icon_url": null,
+      "icon_class": "globe",
+      "color": "#2196F3",
+      "category": "skill",
+      "rarity": "rare",
+      "requirements": null,
+      "points_required": 0,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "f16a26b1-e835-44ee-99d0-f42a0f7bb905",
+      "name": "Crypto Genius",
+      "description": "Complete 3 crypto challenges",
+      "icon_url": null,
+      "icon_class": "lock",
+      "color": "#9C27B0",
+      "category": "skill",
+      "rarity": "rare",
+      "requirements": null,
+      "points_required": 0,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "8f170714-207e-4fcf-b07e-78ea310479d2",
+      "name": "Network Ninja",
+      "description": "Complete 3 network challenges",
+      "icon_url": null,
+      "icon_class": "wifi",
+      "color": "#607D8B",
+      "category": "skill",
+      "rarity": "rare",
+      "requirements": null,
+      "points_required": 0,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    }
+  ],
+  "achievements": [
+    {
+      "id": "5c756e32-b406-4fce-abff-c441da3120b6",
+      "name": "First Challenge",
+      "description": "Complete your first challenge",
+      "icon_class": "flag",
+      "category": "challenges",
+      "target_value": 1,
+      "current_value_field": "challenges_completed",
+      "reward_points": 50,
+      "reward_badge_id": null,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "dcf3d35e-8694-47e4-a103-4cde63093255",
+      "name": "Challenge Veteran",
+      "description": "Complete 10 challenges",
+      "icon_class": "target",
+      "category": "challenges",
+      "target_value": 10,
+      "current_value_field": "challenges_completed",
+      "reward_points": 200,
+      "reward_badge_id": null,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "453cbd5e-d963-47bb-8f2d-5bf1ea8bcaf7",
+      "name": "Challenge Master",
+      "description": "Complete 25 challenges",
+      "icon_class": "crown",
+      "category": "challenges",
+      "target_value": 25,
+      "current_value_field": "challenges_completed",
+      "reward_points": 500,
+      "reward_badge_id": null,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "835a5937-92c6-401b-b2cb-63c8ff519fc3",
+      "name": "Lab Beginner",
+      "description": "Complete your first lab",
+      "icon_class": "flask-conical",
+      "category": "labs",
+      "target_value": 1,
+      "current_value_field": "labs_completed",
+      "reward_points": 100,
+      "reward_badge_id": null,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "021c15b8-2b57-42f5-b4b6-6be50e47ba2a",
+      "name": "Lab Expert",
+      "description": "Complete 5 labs",
+      "icon_class": "beaker",
+      "category": "labs",
+      "target_value": 5,
+      "current_value_field": "labs_completed",
+      "reward_points": 300,
+      "reward_badge_id": null,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "72e6c320-09b9-45ab-8151-fb7ee2948c21",
+      "name": "Point Milestone",
+      "description": "Reach 1000 points",
+      "icon_class": "gem",
+      "category": "points",
+      "target_value": 1000,
+      "current_value_field": "total_points",
+      "reward_points": 100,
+      "reward_badge_id": null,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "2cb3e8db-f9b8-4581-9ec7-c7987a5cfc64",
+      "name": "Elite Status",
+      "description": "Reach 2500 points",
+      "icon_class": "star",
+      "category": "points",
+      "target_value": 2500,
+      "current_value_field": "total_points",
+      "reward_points": 250,
+      "reward_badge_id": null,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    },
+    {
+      "id": "5d46aa38-5568-478e-bd01-947dd87e571e",
+      "name": "Dedication",
+      "description": "Maintain 7-day streak",
+      "icon_class": "flame",
+      "category": "streak",
+      "target_value": 7,
+      "current_value_field": "streak_days",
+      "reward_points": 150,
+      "reward_badge_id": null,
+      "is_active": true,
+      "created_at": "2025-06-11T13:13:50.545166+00:00"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "3f9a8064-0669-408d-8bd1-030a5c3fbaf5",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:15:39.947417+00:00",
+      "updated_at": "2025-09-12T17:15:39.947417+00:00"
+    },
+    {
+      "id": "e926e8ef-daaa-4181-84a7-f99729d39b15",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:15:57.797526+00:00",
+      "updated_at": "2025-09-12T17:15:57.797526+00:00"
+    },
+    {
+      "id": "a93426b6-83f3-4233-a4a0-86039b80fd51",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:17:38.503265+00:00",
+      "updated_at": "2025-09-12T17:17:38.503265+00:00"
+    },
+    {
+      "id": "4ba86403-e1a3-4d2f-93d0-da6c704c0b2f",
+      "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "type": "invite_received",
+      "message": "You have been invited to join a Blue Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:20:11.851166+00:00",
+      "updated_at": "2025-09-12T17:20:11.851166+00:00"
+    },
+    {
+      "id": "80f21004-2e83-49bd-9be2-25a7326c3133",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:20:18.617548+00:00",
+      "updated_at": "2025-09-12T17:20:18.617548+00:00"
+    },
+    {
+      "id": "744642d3-209b-43bb-bfe0-69e6efb92ace",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:22:29.006749+00:00",
+      "updated_at": "2025-09-12T17:22:29.006749+00:00"
+    },
+    {
+      "id": "9c4852c4-eb1d-4036-8351-9b0c208908dd",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:24:29.350259+00:00",
+      "updated_at": "2025-09-12T17:24:29.350259+00:00"
+    },
+    {
+      "id": "924dd0f9-223d-4fa4-bf82-6d1685ea5a1c",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:24:47.978699+00:00",
+      "updated_at": "2025-09-12T17:24:47.978699+00:00"
+    },
+    {
+      "id": "2470df46-0156-44a6-9a0a-938f749c0cd1",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:24:57.359589+00:00",
+      "updated_at": "2025-09-12T17:24:57.359589+00:00"
+    },
+    {
+      "id": "54b6b698-8bbf-4c36-8c0a-1841674d834d",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:26:17.319458+00:00",
+      "updated_at": "2025-09-12T17:26:17.319458+00:00"
+    },
+    {
+      "id": "ce4c96f2-e4e8-4138-aa16-a9a2cc7ea24c",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:26:49.487604+00:00",
+      "updated_at": "2025-09-12T17:26:49.487604+00:00"
+    },
+    {
+      "id": "8ba805f1-efce-4ca6-a838-a61c0e5a93c8",
+      "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "type": "invite_received",
+      "message": "You have been invited to join a Blue Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:27:03.826274+00:00",
+      "updated_at": "2025-09-12T17:27:03.826274+00:00"
+    },
+    {
+      "id": "28ae5456-53a0-4955-ae8f-8341738c215f",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:30:04.455159+00:00",
+      "updated_at": "2025-09-12T17:30:04.455159+00:00"
+    },
+    {
+      "id": "45ceb5e4-6481-4dcd-8483-fd8583f9bef0",
+      "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "type": "invite_received",
+      "message": "You have been invited to join a Blue Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:30:10.37047+00:00",
+      "updated_at": "2025-09-12T17:30:10.37047+00:00"
+    },
+    {
+      "id": "9b149c64-12e3-4a58-a2c1-8368032f0bdc",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:30:59.150685+00:00",
+      "updated_at": "2025-09-12T17:30:59.150685+00:00"
+    },
+    {
+      "id": "1301be76-cbfb-4e3e-8b8f-ac8ac403695d",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:32:57.047328+00:00",
+      "updated_at": "2025-09-12T17:32:57.047328+00:00"
+    },
+    {
+      "id": "b77a19d8-e259-4317-9118-7f9ef69f5178",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:37:46.574388+00:00",
+      "updated_at": "2025-09-12T17:37:46.574388+00:00"
+    },
+    {
+      "id": "c0ffc16d-5cde-4c99-8607-095012efde19",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Blue Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:38:29.066002+00:00",
+      "updated_at": "2025-09-12T17:38:29.066002+00:00"
+    },
+    {
+      "id": "83652246-d13c-49fb-b84c-45ae89692aa0",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Blue Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:43:31.240106+00:00",
+      "updated_at": "2025-09-12T17:43:31.240106+00:00"
+    },
+    {
+      "id": "20d516e1-377f-4054-9de0-78fb8143921a",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Blue Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:45:32.818955+00:00",
+      "updated_at": "2025-09-12T17:45:32.818955+00:00"
+    },
+    {
+      "id": "2fa451d5-0515-4cab-95a1-74b5799e3587",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Blue Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:46:34.118394+00:00",
+      "updated_at": "2025-09-12T17:46:34.118394+00:00"
+    },
+    {
+      "id": "7f6a995e-96f4-4f4d-8f05-d2a3b556320c",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Blue Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:51:49.114086+00:00",
+      "updated_at": "2025-09-12T17:51:49.114086+00:00"
+    },
+    {
+      "id": "60a775c9-7354-4647-b0fc-4b4a7df74c38",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Blue Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:53:04.577633+00:00",
+      "updated_at": "2025-09-12T17:53:04.577633+00:00"
+    },
+    {
+      "id": "ccf5a6a6-cc17-4743-a773-8832f9c22819",
+      "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:55:05.611829+00:00",
+      "updated_at": "2025-09-12T17:55:05.611829+00:00"
+    },
+    {
+      "id": "dc9db6ef-aee9-4870-a048-dbc891513309",
+      "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T17:56:12.054106+00:00",
+      "updated_at": "2025-09-12T17:56:12.054106+00:00"
+    },
+    {
+      "id": "a80e641c-9d39-4240-b3ad-e6f95e4abd62",
+      "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T18:07:40.0635+00:00",
+      "updated_at": "2025-09-12T18:07:40.0635+00:00"
+    },
+    {
+      "id": "34485d24-4e7f-48b9-8847-fd7896f4be12",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T18:14:35.123571+00:00",
+      "updated_at": "2025-09-12T18:14:35.123571+00:00"
+    },
+    {
+      "id": "5937667a-4813-4b8e-b8c3-7068f018d9ae",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T18:14:58.725875+00:00",
+      "updated_at": "2025-09-12T18:14:58.725875+00:00"
+    },
+    {
+      "id": "6afd118f-fd19-4e7e-85fb-09bd306c287a",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T18:15:48.760513+00:00",
+      "updated_at": "2025-09-12T18:15:48.760513+00:00"
+    },
+    {
+      "id": "a60f211d-44a4-4e84-a14d-7768953a58b5",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T18:17:41.174134+00:00",
+      "updated_at": "2025-09-12T18:17:41.174134+00:00"
+    },
+    {
+      "id": "84ef5330-029a-4de9-8860-212b5099eb09",
+      "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "type": "invite_received",
+      "message": "You have been invited to join a Blue Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T18:17:50.025897+00:00",
+      "updated_at": "2025-09-12T18:17:50.025897+00:00"
+    },
+    {
+      "id": "c4c7e728-0a4a-4114-997f-bfc6fb85443e",
+      "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T18:20:05.634163+00:00",
+      "updated_at": "2025-09-12T18:20:05.634163+00:00"
+    },
+    {
+      "id": "3ca57a5d-4ab0-40b4-8fbc-512d7ba15ea3",
+      "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T18:22:16.14968+00:00",
+      "updated_at": "2025-09-12T18:22:16.14968+00:00"
+    },
+    {
+      "id": "cf6e82ec-faa5-400f-9277-b7c0fd92900e",
+      "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T18:22:35.452078+00:00",
+      "updated_at": "2025-09-12T18:22:35.452078+00:00"
+    },
+    {
+      "id": "ec858ea9-de2d-4018-b223-9a97cff7964f",
+      "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T18:28:49.783587+00:00",
+      "updated_at": "2025-09-12T18:28:49.783587+00:00"
+    },
+    {
+      "id": "e2e2b220-c8f8-4115-998a-42cc24ca0aec",
+      "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T18:37:54.27672+00:00",
+      "updated_at": "2025-09-12T18:37:54.27672+00:00"
+    },
+    {
+      "id": "af430ea0-6ff7-4350-97f5-f69c948bdebf",
+      "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+      "type": "invite_received",
+      "message": "You have been invited to join a Red Team operation.",
+      "seen": false,
+      "session_id": null,
+      "created_at": "2025-09-12T18:41:18.864556+00:00",
+      "updated_at": "2025-09-12T18:41:18.864556+00:00"
+    }
+  ],
+  "questions": [],
+  "answers": [],
+  "labs": [
+    {
+      "id": "8567d9c8-2890-4e46-abbf-4df09ab2f4e8",
+      "title": "Test",
+      "description": "",
+      "category": "network",
+      "difficulty": "easy",
+      "points": 10,
+      "estimated_time": 60,
+      "short_intro": "",
+      "learning_objectives": [
+        ""
+      ],
+      "attack_scenario": "",
+      "lab_type": "docker",
+      "docker_command": "docker",
+      "vm_download_url": "",
+      "external_link": "",
+      "setup_instructions": "",
+      "thumbnail_url": "",
+      "suggested_tools": [
+        ""
+      ],
+      "pre_reading_links": [
+        ""
+      ],
+      "status": "published",
+      "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "created_at": "2025-06-03T12:23:37.652511+00:00",
+      "updated_at": "2025-06-03T12:23:37.652511+00:00",
+      "operation_id": null
+    },
+    {
+      "id": "cc6b6491-f89f-4a58-8303-e9f17c4a8318",
+      "title": "TEST",
+      "description": "",
+      "category": "privilege-escalation",
+      "difficulty": "hard",
+      "points": 20,
+      "estimated_time": 60,
+      "short_intro": "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg",
+      "learning_objectives": [
+        "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg"
+      ],
+      "attack_scenario": "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg",
+      "lab_type": "docker",
+      "docker_command": "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg",
+      "vm_download_url": "",
+      "external_link": "",
+      "setup_instructions": "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg",
+      "thumbnail_url": "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg",
+      "suggested_tools": [
+        "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg"
+      ],
+      "pre_reading_links": [
+        ""
+      ],
+      "status": "published",
+      "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "created_at": "2025-06-03T12:39:19.595172+00:00",
+      "updated_at": "2025-06-03T12:39:19.595172+00:00",
+      "operation_id": null
+    },
+    {
+      "id": "c8aa3b37-9397-4806-806c-6268d4f909ea",
+      "title": "Penetration Testing",
+      "description": "",
+      "category": "network",
+      "difficulty": "hard",
+      "points": 20,
+      "estimated_time": 60,
+      "short_intro": "Penetration testing, also known as pen testing or ethical hacking, is a simulated cyberattack on a computer system to identify vulnerabilities before malicious actors can exploit them. It involves authorized attempts to breach security defenses to uncover weaknesses in systems, networks, or applications. This proactive approach helps organizations strengthen their security posture and prevent potential data breaches. ",
+      "learning_objectives": [
+        "Learn About Exploitation",
+        "Learn About Recon"
+      ],
+      "attack_scenario": "Pen testing uses the same tools and techniques as attackers, but with permission, to find weaknesses. ",
+      "lab_type": "docker",
+      "docker_command": "docker pull Pentest",
+      "vm_download_url": "",
+      "external_link": "",
+      "setup_instructions": "Install kali\ninstall docker\npull the docker",
+      "thumbnail_url": "https://png.pngtree.com/png-clipart/20210725/original/pngtree-hacker-light-effect-network-logo-png-image_6560131.jpg",
+      "suggested_tools": [
+        "namp",
+        "brupsuite",
+        "wireshark"
+      ],
+      "pre_reading_links": [
+        ""
+      ],
+      "status": "published",
+      "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "created_at": "2025-06-28T06:12:21.000862+00:00",
+      "updated_at": "2025-06-28T06:12:21.000862+00:00",
+      "operation_id": null
+    },
+    {
+      "id": "746de80d-a696-40ff-8fc3-6b7170d3e5ae",
+      "title": "Red Teaming Lab",
+      "description": "",
+      "category": "network",
+      "difficulty": "medium",
+      "points": 10,
+      "estimated_time": 60,
+      "short_intro": "A type of attack that uses unicode characters in the domain name to imitate a known domain is called a Unicode domain phishing attack",
+      "learning_objectives": [
+        ""
+      ],
+      "attack_scenario": "",
+      "lab_type": "docker",
+      "docker_command": "",
+      "vm_download_url": "",
+      "external_link": "",
+      "setup_instructions": "",
+      "thumbnail_url": "https://drive.google.com/file/d/1W5SI2340zeIghWu_OFE8ausMoipcJuf6/view?usp=sharing",
+      "suggested_tools": [
+        ""
+      ],
+      "pre_reading_links": [
+        ""
+      ],
+      "status": "published",
+      "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "created_at": "2025-07-08T17:13:05.575734+00:00",
+      "updated_at": "2025-07-08T17:13:05.575734+00:00",
+      "operation_id": null
+    },
+    {
+      "id": "1010d8ef-f4bc-4d55-8c78-a56dd1e5a595",
+      "title": "ABUBAKFAR",
+      "description": "",
+      "category": "network",
+      "difficulty": "insane",
+      "points": 10,
+      "estimated_time": 60,
+      "short_intro": "TEST",
+      "learning_objectives": [
+        "TESYT"
+      ],
+      "attack_scenario": "TEST",
+      "lab_type": "docker",
+      "docker_command": "DOCKER ",
+      "vm_download_url": "",
+      "external_link": "",
+      "setup_instructions": "",
+      "thumbnail_url": "",
+      "suggested_tools": [
+        ""
+      ],
+      "pre_reading_links": [
+        ""
+      ],
+      "status": "published",
+      "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "created_at": "2025-07-14T18:13:30.166577+00:00",
+      "updated_at": "2025-07-14T18:13:30.166577+00:00",
+      "operation_id": null
+    },
+    {
+      "id": "1912ea0d-2acf-402b-b645-1e23b9158f4d",
+      "title": "LLMNR Poisoning",
+      "description": "",
+      "category": "network",
+      "difficulty": "easy",
+      "points": 20,
+      "estimated_time": 60,
+      "short_intro": "LLMNR (Link-Local Multicast Name Resolution) poisoning is a network attack where an attacker tricks Windows devices into sending their login credentials by pretending to be the system they’re looking for. This is done using a tool called Responder.\n\nWe use this technique in penetration testing to identify weak network configurations and capture NTLM password hashes, which can be cracked to gain unauthorized access. It helps test how secure a network is against local threats.\n",
+      "learning_objectives": [
+        "LLMNR"
+      ],
+      "attack_scenario": "LLMNR (Link-Local Multicast Name Resolution) poisoning is a network attack where an attacker tricks Windows devices into sending their login credentials by pretending to be the system they’re looking for. This is done using a tool called Responder.\n\nWe use this technique in penetration testing to identify weak network configurations and capture NTLM password hashes, which can be cracked to gain unauthorized access. It helps test how secure a network is against local threats.\n",
+      "lab_type": "vm",
+      "docker_command": "",
+      "vm_download_url": "https://drive.google.com/file/d/1LMgmCzJd0dFOv4oRVCcbdiEDCsqN_s-i/view?usp=sharing",
+      "external_link": "https://drive.google.com/file/d/1LMgmCzJd0dFOv4oRVCcbdiEDCsqN_s-i/view?usp=sharing",
+      "setup_instructions": "UNzip the File \nGo to the folder \nMake Sure Docker is Install\nand run the .sh file with root privs",
+      "thumbnail_url": "https://drive.google.com/file/d/1e-1zAOJYyhEUSd06_nCmAiJptsUt6OhH/view?usp=sharing",
+      "suggested_tools": [
+        "Responder",
+        "Docker"
+      ],
+      "pre_reading_links": [
+        "LLMNR "
+      ],
+      "status": "published",
+      "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+      "created_at": "2025-07-15T10:57:40.710933+00:00",
+      "updated_at": "2025-07-15T10:57:40.710933+00:00",
+      "operation_id": null
+    }
+  ],
+  "lab_sessions": []
+}

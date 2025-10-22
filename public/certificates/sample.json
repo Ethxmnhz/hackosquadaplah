@@ -1,0 +1,9 @@
+{
+  "name": "HackOSquad Certificate",
+  "description": "Onchain proof of completion for a HackOSquad certification.",
+  "image": "/certificates/sample.svg",
+  "attributes": [
+    { "trait_type": "Certification", "value": "Example Track" },
+    { "trait_type": "Network", "value": "Base Sepolia" }
+  ]
+}

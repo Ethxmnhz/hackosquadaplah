@@ -10,6 +10,7 @@ import { getSkillPaths } from '../../lib/api';
 import { useCertificatePurchase } from '../../hooks/useCertificatePurchase';
 import { SkillPath } from '../../lib/types';
 import Card from '../../components/ui/Card';
+import { convertGoogleDriveUrl, createImageErrorHandler } from '../../lib/imageUtils';
 
 const CertificationsPage = () => {
   const navigate = useNavigate();
@@ -162,18 +163,28 @@ const CertificationsPage = () => {
                   {featured.certificate_image_url ? (
                     <div className="relative w-full h-64">
                       <img
-                        src={featured.certificate_image_url}
+                        src={convertGoogleDriveUrl(featured.certificate_image_url)}
                         alt={featured.title + ' certificate'}
                         className="w-full h-64 object-cover rounded-lg shadow-lg ring-1 ring-white/10"
+                        onError={createImageErrorHandler(featured.certificate_image_url)}
                       />
                       <div className="absolute inset-0 rounded-lg bg-gradient-to-tr from-red-500/10 to-transparent" />
+                      <div className="image-fallback hidden absolute inset-0 bg-slate-800/50 rounded-lg items-center justify-center border border-slate-700/50">
+                        <Award className="h-24 w-24 text-red-400/50" />
+                      </div>
                     </div>
                   ) : featured.cover_image ? (
-                    <img
-                      src={featured.cover_image}
-                      alt={featured.title}
-                      className="w-full h-64 object-cover rounded-lg shadow-lg"
-                    />
+                    <div className="relative w-full h-64">
+                      <img
+                        src={convertGoogleDriveUrl(featured.cover_image)}
+                        alt={featured.title}
+                        className="w-full h-64 object-cover rounded-lg shadow-lg"
+                        onError={createImageErrorHandler(featured.cover_image)}
+                      />
+                      <div className="image-fallback hidden absolute inset-0 bg-slate-800/50 rounded-lg items-center justify-center border border-slate-700/50">
+                        <Award className="h-24 w-24 text-red-400/50" />
+                      </div>
+                    </div>
                   ) : (
                     <div className="w-full h-64 bg-slate-800/50 rounded-lg flex items-center justify-center border border-slate-700/50">
                       <Award className="h-24 w-24 text-red-400/50" />
@@ -312,12 +323,20 @@ const CertificationsPage = () => {
                   {/* Cover Image */}
                   <div className="relative h-48 bg-gradient-to-br from-red-500/20 to-purple-600/20 rounded-t-xl overflow-hidden">
                     {cert.cover_image ? (
-                      <img src={cert.cover_image} alt={cert.title} className="w-full h-full object-cover" />
+                      <img 
+                        src={convertGoogleDriveUrl(cert.cover_image)} 
+                        alt={cert.title} 
+                        className="w-full h-full object-cover"
+                        onError={createImageErrorHandler(cert.cover_image)}
+                      />
                     ) : (
                       <div className="flex items-center justify-center h-full">
                         <Award className="h-16 w-16 text-red-400/50" />
                       </div>
                     )}
+                    <div className="image-fallback hidden w-full h-full items-center justify-center absolute inset-0">
+                      <Award className="h-16 w-16 text-red-400/50" />
+                    </div>
                     <div className="absolute top-4 left-4 flex flex-wrap gap-2 items-center">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getDifficultyColor(cert.difficulty)}`}>
                         {cert.difficulty.toUpperCase()}

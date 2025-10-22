@@ -20,6 +20,35 @@ export async function getUserPlan() {
   return { plan: data.plan || 'free', activated_at: data.activated_at };
 }
 
+// Re-introduced lightweight entitlements fetch used by EntitlementsList component
+// Returns active + inactive entitlements for current user (scopes from content_entitlements join if needed later)
+export async function getEntitlements() {
+  try {
+    const user = (await supabase.auth.getUser()).data.user;
+    if (!user) return [];
+    // user_content_purchases OR content_entitlements gated scopes? For now assume table user_content_purchases for ownership
+    // But original component expects: id, scope, active, ends_at (generic). We'll derive a synthetic scope when not present.
+    const { data, error } = await supabase
+      .from('user_content_purchases')
+      .select('id, content_type, content_id, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.warn('[getEntitlements] fallback empty:', error.message);
+      return [];
+    }
+    return (data || []).map(r => ({
+      id: r.id,
+      scope: `${r.content_type}:${r.content_id}`,
+      active: true,
+      ends_at: null
+    }));
+  } catch (e) {
+    console.error('[getEntitlements] exception', e);
+    return [];
+  }
+}
+
 // Call edge function to create or verify payment
 export async function payPlan(action: 'create'|'verify', payload: any) {
   // Use Supabase functions client so it routes correctly in dev & prod

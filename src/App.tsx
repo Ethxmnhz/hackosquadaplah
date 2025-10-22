@@ -50,6 +50,10 @@ const EditCertificationPage = lazy(() => import('./pages/admin/EditCertification
 const LabOperation = lazy(() => import('./pages/admin/LabOperation'));
 const RedVsBlueSessionsAdminPage = lazy(() => import('./pages/admin/RedVsBlueSessionsAdminPage'));
 const AdminDashboardPage = lazy(() => import('./pages/admin-dashboard/AdminDashboardPage'));
+const OnchainTestPage = lazy(() => import('./pages/onchain/OnchainTestPage'));
+const ClaimCertificatePage = lazy(() => import('./pages/certs/ClaimCertificate'));
+const MyCertificatesPage = lazy(() => import('./pages/certs/MyCertificates'));
+const VerifierPage = lazy(() => import('./pages/certs/Verifier'));
 
 // Leaderboard Page (lazy)
 const LeaderboardPage = lazy(() => import('./pages/leaderboard/LeaderboardPage'));
@@ -100,6 +104,14 @@ function App() {
               <Route path="/billing" element={<BillingPage />} />
               {/* Gated Sample Page (temporary) */}
               <Route path="/sample-challenge" element={<SampleChallengePage />} />
+              {/* Onchain Test Route */}
+              <Route path="/onchain" element={<OnchainTestPage />} />
+              {/* Claim Certificate */}
+              <Route path="/certs/claim" element={<ClaimCertificatePage />} />
+              {/* My Certificates */}
+              <Route path="/certs/mine" element={<MyCertificatesPage />} />
+              {/* Verifier Page */}
+              <Route path="/certs/verify" element={<VerifierPage />} />
               {/* Threat Intelligence removed */}
               
               {/* Operations Routes */}

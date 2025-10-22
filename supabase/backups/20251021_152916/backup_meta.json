@@ -1,0 +1,11 @@
+﻿{
+    "created_at":  "2025-10-21T15:29:18.3784638+05:30",
+    "tool":  "pg_dump/pg_dumpall",
+    "host_os":  "Microsoft Windows 11 Pro",
+    "db_url":  "postgresql://postgres:****@db.knkmwdvodbonkbglwyqw.supabase.co:5432/postgres?sslmode=require",
+    "files":  {
+                  "custom":  "K:\\project\\project-final\\project-final\\supabase\\backups\\20251021_152916\\dump.dump",
+                  "plain_sql":  "K:\\project\\project-final\\project-final\\supabase\\backups\\20251021_152916\\dump.sql",
+                  "globals":  "K:\\project\\project-final\\project-final\\supabase\\backups\\20251021_152916\\globals_roles.sql"
+              }
+}

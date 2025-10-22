@@ -9,6 +9,7 @@ import {
 import { getSkillPaths } from '../../lib/api';
 import { SkillPath } from '../../lib/types';
 import Card from '../../components/ui/Card';
+import { convertGoogleDriveUrl, createImageErrorHandler } from '../../lib/imageUtils';
 
 const SkillPathsPage = () => {
   const navigate = useNavigate();
@@ -147,12 +148,20 @@ const SkillPathsPage = () => {
                   {/* Cover Image */}
                   <div className="relative h-48 bg-gradient-to-br from-red-500/20 to-red-600/20 rounded-t-xl overflow-hidden">
                     {path.cover_image ? (
-                      <img src={path.cover_image} alt={path.title} className="w-full h-full object-cover" />
+                      <img 
+                        src={convertGoogleDriveUrl(path.cover_image)} 
+                        alt={path.title} 
+                        className="w-full h-full object-cover"
+                        onError={createImageErrorHandler(path.cover_image)}
+                      />
                     ) : (
                       <div className="flex items-center justify-center h-full">
                         <Layers className="h-16 w-16 text-red-400/50" />
                       </div>
                     )}
+                    <div className="image-fallback hidden w-full h-full items-center justify-center absolute inset-0">
+                      <Layers className="h-16 w-16 text-red-400/50" />
+                    </div>
                     <div className="absolute top-4 right-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${getDifficultyColor(path.difficulty)}`}>
                         {path.difficulty.toUpperCase()}

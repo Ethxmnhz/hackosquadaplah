@@ -1,0 +1,192 @@
+[
+  {
+    "id": "8567d9c8-2890-4e46-abbf-4df09ab2f4e8",
+    "title": "Test",
+    "description": "",
+    "category": "network",
+    "difficulty": "easy",
+    "points": 10,
+    "estimated_time": 60,
+    "short_intro": "",
+    "learning_objectives": [
+      ""
+    ],
+    "attack_scenario": "",
+    "lab_type": "docker",
+    "docker_command": "docker",
+    "vm_download_url": "",
+    "external_link": "",
+    "setup_instructions": "",
+    "thumbnail_url": "",
+    "suggested_tools": [
+      ""
+    ],
+    "pre_reading_links": [
+      ""
+    ],
+    "status": "published",
+    "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "created_at": "2025-06-03T12:23:37.652511+00:00",
+    "updated_at": "2025-06-03T12:23:37.652511+00:00",
+    "operation_id": null
+  },
+  {
+    "id": "cc6b6491-f89f-4a58-8303-e9f17c4a8318",
+    "title": "TEST",
+    "description": "",
+    "category": "privilege-escalation",
+    "difficulty": "hard",
+    "points": 20,
+    "estimated_time": 60,
+    "short_intro": "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg",
+    "learning_objectives": [
+      "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg"
+    ],
+    "attack_scenario": "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg",
+    "lab_type": "docker",
+    "docker_command": "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg",
+    "vm_download_url": "",
+    "external_link": "",
+    "setup_instructions": "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg",
+    "thumbnail_url": "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg",
+    "suggested_tools": [
+      "https://www.avisto.com/wp-content/uploads/2019/09/pentester.jpg"
+    ],
+    "pre_reading_links": [
+      ""
+    ],
+    "status": "published",
+    "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "created_at": "2025-06-03T12:39:19.595172+00:00",
+    "updated_at": "2025-06-03T12:39:19.595172+00:00",
+    "operation_id": null
+  },
+  {
+    "id": "c8aa3b37-9397-4806-806c-6268d4f909ea",
+    "title": "Penetration Testing",
+    "description": "",
+    "category": "network",
+    "difficulty": "hard",
+    "points": 20,
+    "estimated_time": 60,
+    "short_intro": "Penetration testing, also known as pen testing or ethical hacking, is a simulated cyberattack on a computer system to identify vulnerabilities before malicious actors can exploit them. It involves authorized attempts to breach security defenses to uncover weaknesses in systems, networks, or applications. This proactive approach helps organizations strengthen their security posture and prevent potential data breaches. ",
+    "learning_objectives": [
+      "Learn About Exploitation",
+      "Learn About Recon"
+    ],
+    "attack_scenario": "Pen testing uses the same tools and techniques as attackers, but with permission, to find weaknesses. ",
+    "lab_type": "docker",
+    "docker_command": "docker pull Pentest",
+    "vm_download_url": "",
+    "external_link": "",
+    "setup_instructions": "Install kali\ninstall docker\npull the docker",
+    "thumbnail_url": "https://png.pngtree.com/png-clipart/20210725/original/pngtree-hacker-light-effect-network-logo-png-image_6560131.jpg",
+    "suggested_tools": [
+      "namp",
+      "brupsuite",
+      "wireshark"
+    ],
+    "pre_reading_links": [
+      ""
+    ],
+    "status": "published",
+    "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "created_at": "2025-06-28T06:12:21.000862+00:00",
+    "updated_at": "2025-06-28T06:12:21.000862+00:00",
+    "operation_id": null
+  },
+  {
+    "id": "746de80d-a696-40ff-8fc3-6b7170d3e5ae",
+    "title": "Red Teaming Lab",
+    "description": "",
+    "category": "network",
+    "difficulty": "medium",
+    "points": 10,
+    "estimated_time": 60,
+    "short_intro": "A type of attack that uses unicode characters in the domain name to imitate a known domain is called a Unicode domain phishing attack",
+    "learning_objectives": [
+      ""
+    ],
+    "attack_scenario": "",
+    "lab_type": "docker",
+    "docker_command": "",
+    "vm_download_url": "",
+    "external_link": "",
+    "setup_instructions": "",
+    "thumbnail_url": "https://drive.google.com/file/d/1W5SI2340zeIghWu_OFE8ausMoipcJuf6/view?usp=sharing",
+    "suggested_tools": [
+      ""
+    ],
+    "pre_reading_links": [
+      ""
+    ],
+    "status": "published",
+    "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "created_at": "2025-07-08T17:13:05.575734+00:00",
+    "updated_at": "2025-07-08T17:13:05.575734+00:00",
+    "operation_id": null
+  },
+  {
+    "id": "1010d8ef-f4bc-4d55-8c78-a56dd1e5a595",
+    "title": "ABUBAKFAR",
+    "description": "",
+    "category": "network",
+    "difficulty": "insane",
+    "points": 10,
+    "estimated_time": 60,
+    "short_intro": "TEST",
+    "learning_objectives": [
+      "TESYT"
+    ],
+    "attack_scenario": "TEST",
+    "lab_type": "docker",
+    "docker_command": "DOCKER ",
+    "vm_download_url": "",
+    "external_link": "",
+    "setup_instructions": "",
+    "thumbnail_url": "",
+    "suggested_tools": [
+      ""
+    ],
+    "pre_reading_links": [
+      ""
+    ],
+    "status": "published",
+    "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "created_at": "2025-07-14T18:13:30.166577+00:00",
+    "updated_at": "2025-07-14T18:13:30.166577+00:00",
+    "operation_id": null
+  },
+  {
+    "id": "1912ea0d-2acf-402b-b645-1e23b9158f4d",
+    "title": "LLMNR Poisoning",
+    "description": "",
+    "category": "network",
+    "difficulty": "easy",
+    "points": 20,
+    "estimated_time": 60,
+    "short_intro": "LLMNR (Link-Local Multicast Name Resolution) poisoning is a network attack where an attacker tricks Windows devices into sending their login credentials by pretending to be the system they’re looking for. This is done using a tool called Responder.\n\nWe use this technique in penetration testing to identify weak network configurations and capture NTLM password hashes, which can be cracked to gain unauthorized access. It helps test how secure a network is against local threats.\n",
+    "learning_objectives": [
+      "LLMNR"
+    ],
+    "attack_scenario": "LLMNR (Link-Local Multicast Name Resolution) poisoning is a network attack where an attacker tricks Windows devices into sending their login credentials by pretending to be the system they’re looking for. This is done using a tool called Responder.\n\nWe use this technique in penetration testing to identify weak network configurations and capture NTLM password hashes, which can be cracked to gain unauthorized access. It helps test how secure a network is against local threats.\n",
+    "lab_type": "vm",
+    "docker_command": "",
+    "vm_download_url": "https://drive.google.com/file/d/1LMgmCzJd0dFOv4oRVCcbdiEDCsqN_s-i/view?usp=sharing",
+    "external_link": "https://drive.google.com/file/d/1LMgmCzJd0dFOv4oRVCcbdiEDCsqN_s-i/view?usp=sharing",
+    "setup_instructions": "UNzip the File \nGo to the folder \nMake Sure Docker is Install\nand run the .sh file with root privs",
+    "thumbnail_url": "https://drive.google.com/file/d/1e-1zAOJYyhEUSd06_nCmAiJptsUt6OhH/view?usp=sharing",
+    "suggested_tools": [
+      "Responder",
+      "Docker"
+    ],
+    "pre_reading_links": [
+      "LLMNR "
+    ],
+    "status": "published",
+    "created_by": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "created_at": "2025-07-15T10:57:40.710933+00:00",
+    "updated_at": "2025-07-15T10:57:40.710933+00:00",
+    "operation_id": null
+  }
+]

@@ -1,0 +1,372 @@
+[
+  {
+    "id": "3f9a8064-0669-408d-8bd1-030a5c3fbaf5",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:15:39.947417+00:00",
+    "updated_at": "2025-09-12T17:15:39.947417+00:00"
+  },
+  {
+    "id": "e926e8ef-daaa-4181-84a7-f99729d39b15",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:15:57.797526+00:00",
+    "updated_at": "2025-09-12T17:15:57.797526+00:00"
+  },
+  {
+    "id": "a93426b6-83f3-4233-a4a0-86039b80fd51",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:17:38.503265+00:00",
+    "updated_at": "2025-09-12T17:17:38.503265+00:00"
+  },
+  {
+    "id": "4ba86403-e1a3-4d2f-93d0-da6c704c0b2f",
+    "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "type": "invite_received",
+    "message": "You have been invited to join a Blue Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:20:11.851166+00:00",
+    "updated_at": "2025-09-12T17:20:11.851166+00:00"
+  },
+  {
+    "id": "80f21004-2e83-49bd-9be2-25a7326c3133",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:20:18.617548+00:00",
+    "updated_at": "2025-09-12T17:20:18.617548+00:00"
+  },
+  {
+    "id": "744642d3-209b-43bb-bfe0-69e6efb92ace",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:22:29.006749+00:00",
+    "updated_at": "2025-09-12T17:22:29.006749+00:00"
+  },
+  {
+    "id": "9c4852c4-eb1d-4036-8351-9b0c208908dd",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:24:29.350259+00:00",
+    "updated_at": "2025-09-12T17:24:29.350259+00:00"
+  },
+  {
+    "id": "924dd0f9-223d-4fa4-bf82-6d1685ea5a1c",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:24:47.978699+00:00",
+    "updated_at": "2025-09-12T17:24:47.978699+00:00"
+  },
+  {
+    "id": "2470df46-0156-44a6-9a0a-938f749c0cd1",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:24:57.359589+00:00",
+    "updated_at": "2025-09-12T17:24:57.359589+00:00"
+  },
+  {
+    "id": "54b6b698-8bbf-4c36-8c0a-1841674d834d",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:26:17.319458+00:00",
+    "updated_at": "2025-09-12T17:26:17.319458+00:00"
+  },
+  {
+    "id": "ce4c96f2-e4e8-4138-aa16-a9a2cc7ea24c",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:26:49.487604+00:00",
+    "updated_at": "2025-09-12T17:26:49.487604+00:00"
+  },
+  {
+    "id": "8ba805f1-efce-4ca6-a838-a61c0e5a93c8",
+    "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "type": "invite_received",
+    "message": "You have been invited to join a Blue Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:27:03.826274+00:00",
+    "updated_at": "2025-09-12T17:27:03.826274+00:00"
+  },
+  {
+    "id": "28ae5456-53a0-4955-ae8f-8341738c215f",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:30:04.455159+00:00",
+    "updated_at": "2025-09-12T17:30:04.455159+00:00"
+  },
+  {
+    "id": "45ceb5e4-6481-4dcd-8483-fd8583f9bef0",
+    "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "type": "invite_received",
+    "message": "You have been invited to join a Blue Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:30:10.37047+00:00",
+    "updated_at": "2025-09-12T17:30:10.37047+00:00"
+  },
+  {
+    "id": "9b149c64-12e3-4a58-a2c1-8368032f0bdc",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:30:59.150685+00:00",
+    "updated_at": "2025-09-12T17:30:59.150685+00:00"
+  },
+  {
+    "id": "1301be76-cbfb-4e3e-8b8f-ac8ac403695d",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:32:57.047328+00:00",
+    "updated_at": "2025-09-12T17:32:57.047328+00:00"
+  },
+  {
+    "id": "b77a19d8-e259-4317-9118-7f9ef69f5178",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:37:46.574388+00:00",
+    "updated_at": "2025-09-12T17:37:46.574388+00:00"
+  },
+  {
+    "id": "c0ffc16d-5cde-4c99-8607-095012efde19",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Blue Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:38:29.066002+00:00",
+    "updated_at": "2025-09-12T17:38:29.066002+00:00"
+  },
+  {
+    "id": "83652246-d13c-49fb-b84c-45ae89692aa0",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Blue Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:43:31.240106+00:00",
+    "updated_at": "2025-09-12T17:43:31.240106+00:00"
+  },
+  {
+    "id": "20d516e1-377f-4054-9de0-78fb8143921a",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Blue Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:45:32.818955+00:00",
+    "updated_at": "2025-09-12T17:45:32.818955+00:00"
+  },
+  {
+    "id": "2fa451d5-0515-4cab-95a1-74b5799e3587",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Blue Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:46:34.118394+00:00",
+    "updated_at": "2025-09-12T17:46:34.118394+00:00"
+  },
+  {
+    "id": "7f6a995e-96f4-4f4d-8f05-d2a3b556320c",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Blue Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:51:49.114086+00:00",
+    "updated_at": "2025-09-12T17:51:49.114086+00:00"
+  },
+  {
+    "id": "60a775c9-7354-4647-b0fc-4b4a7df74c38",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Blue Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:53:04.577633+00:00",
+    "updated_at": "2025-09-12T17:53:04.577633+00:00"
+  },
+  {
+    "id": "ccf5a6a6-cc17-4743-a773-8832f9c22819",
+    "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:55:05.611829+00:00",
+    "updated_at": "2025-09-12T17:55:05.611829+00:00"
+  },
+  {
+    "id": "dc9db6ef-aee9-4870-a048-dbc891513309",
+    "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T17:56:12.054106+00:00",
+    "updated_at": "2025-09-12T17:56:12.054106+00:00"
+  },
+  {
+    "id": "a80e641c-9d39-4240-b3ad-e6f95e4abd62",
+    "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T18:07:40.0635+00:00",
+    "updated_at": "2025-09-12T18:07:40.0635+00:00"
+  },
+  {
+    "id": "34485d24-4e7f-48b9-8847-fd7896f4be12",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T18:14:35.123571+00:00",
+    "updated_at": "2025-09-12T18:14:35.123571+00:00"
+  },
+  {
+    "id": "5937667a-4813-4b8e-b8c3-7068f018d9ae",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T18:14:58.725875+00:00",
+    "updated_at": "2025-09-12T18:14:58.725875+00:00"
+  },
+  {
+    "id": "6afd118f-fd19-4e7e-85fb-09bd306c287a",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T18:15:48.760513+00:00",
+    "updated_at": "2025-09-12T18:15:48.760513+00:00"
+  },
+  {
+    "id": "a60f211d-44a4-4e84-a14d-7768953a58b5",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T18:17:41.174134+00:00",
+    "updated_at": "2025-09-12T18:17:41.174134+00:00"
+  },
+  {
+    "id": "84ef5330-029a-4de9-8860-212b5099eb09",
+    "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "type": "invite_received",
+    "message": "You have been invited to join a Blue Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T18:17:50.025897+00:00",
+    "updated_at": "2025-09-12T18:17:50.025897+00:00"
+  },
+  {
+    "id": "c4c7e728-0a4a-4114-997f-bfc6fb85443e",
+    "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T18:20:05.634163+00:00",
+    "updated_at": "2025-09-12T18:20:05.634163+00:00"
+  },
+  {
+    "id": "3ca57a5d-4ab0-40b4-8fbc-512d7ba15ea3",
+    "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T18:22:16.14968+00:00",
+    "updated_at": "2025-09-12T18:22:16.14968+00:00"
+  },
+  {
+    "id": "cf6e82ec-faa5-400f-9277-b7c0fd92900e",
+    "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T18:22:35.452078+00:00",
+    "updated_at": "2025-09-12T18:22:35.452078+00:00"
+  },
+  {
+    "id": "ec858ea9-de2d-4018-b223-9a97cff7964f",
+    "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T18:28:49.783587+00:00",
+    "updated_at": "2025-09-12T18:28:49.783587+00:00"
+  },
+  {
+    "id": "e2e2b220-c8f8-4115-998a-42cc24ca0aec",
+    "user_id": "a4a4f480-dd1a-4deb-b917-eec48443a0be",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T18:37:54.27672+00:00",
+    "updated_at": "2025-09-12T18:37:54.27672+00:00"
+  },
+  {
+    "id": "af430ea0-6ff7-4350-97f5-f69c948bdebf",
+    "user_id": "794b3648-f419-4704-a9b5-fe55a85d694f",
+    "type": "invite_received",
+    "message": "You have been invited to join a Red Team operation.",
+    "seen": false,
+    "session_id": null,
+    "created_at": "2025-09-12T18:41:18.864556+00:00",
+    "updated_at": "2025-09-12T18:41:18.864556+00:00"
+  }
+]

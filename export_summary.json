@@ -1,0 +1,18 @@
+{
+  "export_date": "2025-10-20T07:22:51.990Z",
+  "total_tables": 10,
+  "successful_exports": 10,
+  "table_stats": {
+    "profiles": 7,
+    "tags": 12,
+    "skill_paths": 1,
+    "badges": 13,
+    "achievements": 8,
+    "notifications": 37,
+    "questions": 0,
+    "answers": 0,
+    "labs": 6,
+    "lab_sessions": 0
+  },
+  "total_records": 84
+}

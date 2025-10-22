@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
@@ -15,27 +14,31 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, className 
     <div className={`markdown-content ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeRaw]}
         components={{
           // Horizontal rule - this will properly render --- as a horizontal line
           hr: () => (
             <hr className="my-6 border-0 h-px bg-gradient-to-r from-transparent via-gray-500 to-transparent" />
           ),
           // Code blocks
-          code({ node, inline, className, children, ...props }) {
-            const match = /language-(\w+)/.exec(className || '');
-            return !inline && match ? (
-              <SyntaxHighlighter
-                style={oneDark}
-                language={match[1]}
-                PreTag="div"
-                className="rounded-lg"
-                {...props}
-              >
-                {String(children).replace(/\n$/, '')}
-              </SyntaxHighlighter>
-            ) : (
-              <code className="bg-slate-800 px-2 py-1 rounded text-primary font-mono text-sm" {...props}>
+          code(codeProps) {
+            // Destructure safely; inline detection uses 'inline' flag present on ReactMarkdown v8 component props
+            const { children, className: codeClassName } = codeProps as any;
+            const match = /language-(\w+)/.exec(codeClassName || '');
+            const isInline = (codeProps as any).inline === true;
+            if (!isInline && match) {
+              return (
+                <SyntaxHighlighter
+                  style={oneDark as any}
+                  language={match[1]}
+                  PreTag="div"
+                  className="rounded-lg"
+                >
+                  {String(children).replace(/\n$/, '')}
+                </SyntaxHighlighter>
+              );
+            }
+            return (
+              <code className="bg-slate-800 px-2 py-1 rounded text-primary font-mono text-sm">
                 {children}
               </code>
             );

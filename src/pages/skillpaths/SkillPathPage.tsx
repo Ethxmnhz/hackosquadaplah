@@ -10,6 +10,7 @@ import { getSkillPath, enrollInSkillPath } from '../../lib/api';
 import { useCertificatePurchase } from '../../hooks/useCertificatePurchase';
 import { SkillPath, SkillPathItem } from '../../lib/types';
 import Card from '../../components/ui/Card';
+import { convertGoogleDriveUrl, createImageErrorHandler } from '../../lib/imageUtils';
 
 const SkillPathPage = () => {
   const { id } = useParams();
@@ -303,12 +304,20 @@ const SkillPathPage = () => {
                       </button>
                     </div>
                   ) : skillPath.user_progress.status === 'completed' ? (
-                    <div className="text-center">
-                      <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
+                    <div className="text-center space-y-3">
+                      <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto">
                         <Trophy className="h-8 w-8 text-green-400" />
                       </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">Congratulations!</h3>
-                      <p className="text-gray-400 text-sm">You've completed this skill path</p>
+                      <div>
+                        <h3 className="text-lg font-semibold text-white">Congratulations!</h3>
+                        <p className="text-gray-400 text-sm">You've completed this skill path</p>
+                      </div>
+                      <button
+                        onClick={() => navigate(`/certs/claim?pathId=${encodeURIComponent(skillPath.id)}&title=${encodeURIComponent(skillPath.title)}`)}
+                        className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                      >
+                        Claim Onchain Certificate
+                      </button>
                     </div>
                   ) : (
                     <button
@@ -475,14 +484,27 @@ const SkillPathPage = () => {
                 </h3>
                 <div className="rounded-lg overflow-hidden border border-slate-700/60 bg-slate-800/40">
                   {cert.certificate_image_url ? (
-                    <img src={cert.certificate_image_url} alt="Certificate preview" className="w-full h-40 object-cover" />
+                    <img 
+                      src={convertGoogleDriveUrl(cert.certificate_image_url)} 
+                      alt="Certificate preview" 
+                      className="w-full h-40 object-cover"
+                      onError={createImageErrorHandler(cert.certificate_image_url)}
+                    />
                   ) : cert.cover_image ? (
-                    <img src={cert.cover_image} alt="Certificate preview" className="w-full h-40 object-cover" />
+                    <img 
+                      src={convertGoogleDriveUrl(cert.cover_image)} 
+                      alt="Certificate preview" 
+                      className="w-full h-40 object-cover"
+                      onError={createImageErrorHandler(cert.cover_image)}
+                    />
                   ) : (
                     <div className="w-full h-40 flex items-center justify-center bg-slate-800">
                       <Award className="h-10 w-10 text-slate-500" />
                     </div>
                   )}
+                  <div className="image-fallback hidden w-full h-40 items-center justify-center bg-slate-800">
+                    <Award className="h-10 w-10 text-slate-500" />
+                  </div>
                 </div>
                 {cert.code && (
                   <div className="mt-3 inline-flex items-center gap-2 px-2 py-1 rounded bg-red-600/20 border border-red-500/30 text-red-300 text-xs font-semibold tracking-wide">

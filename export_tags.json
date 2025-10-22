@@ -1,0 +1,74 @@
+[
+  {
+    "id": "b798d624-ae0b-4234-ad2c-313791a0d804",
+    "name": "Web Security",
+    "category": "Skill",
+    "created_at": "2025-06-03T12:22:41.073544+00:00"
+  },
+  {
+    "id": "82cd6d11-0886-4ce1-b556-c320f9aaa605",
+    "name": "Network Security",
+    "category": "Skill",
+    "created_at": "2025-06-03T12:22:41.073544+00:00"
+  },
+  {
+    "id": "51c154b7-3f09-4c9b-80a3-6f7b673f20a2",
+    "name": "Active Directory",
+    "category": "Skill",
+    "created_at": "2025-06-03T12:22:41.073544+00:00"
+  },
+  {
+    "id": "095d7641-1ff6-4d33-903e-7cef3e9145f9",
+    "name": "Privilege Escalation",
+    "category": "Skill",
+    "created_at": "2025-06-03T12:22:41.073544+00:00"
+  },
+  {
+    "id": "e78d7c89-e68f-4b6b-b7d5-09e57e8e0b97",
+    "name": "Cloud Security",
+    "category": "Skill",
+    "created_at": "2025-06-03T12:22:41.073544+00:00"
+  },
+  {
+    "id": "c8818777-2543-4f41-b145-375f9ec8395f",
+    "name": "Mobile Security",
+    "category": "Skill",
+    "created_at": "2025-06-03T12:22:41.073544+00:00"
+  },
+  {
+    "id": "f658195c-0dac-4bbc-b120-291175b889d7",
+    "name": "OWASP Top 10",
+    "category": "Category",
+    "created_at": "2025-06-03T12:22:41.073544+00:00"
+  },
+  {
+    "id": "2a685aa7-38b7-4c7e-8874-41c38bf745d4",
+    "name": "CTF",
+    "category": "Category",
+    "created_at": "2025-06-03T12:22:41.073544+00:00"
+  },
+  {
+    "id": "9d9133b2-6818-452a-9ba3-30fb59e2dd0f",
+    "name": "Beginner",
+    "category": "Level",
+    "created_at": "2025-06-03T12:22:41.073544+00:00"
+  },
+  {
+    "id": "a4538094-8f5a-4d54-9c77-ac99aa6afda8",
+    "name": "Intermediate",
+    "category": "Level",
+    "created_at": "2025-06-03T12:22:41.073544+00:00"
+  },
+  {
+    "id": "4c7bd13a-18c8-4996-b5df-6f69612177cc",
+    "name": "Advanced",
+    "category": "Level",
+    "created_at": "2025-06-03T12:22:41.073544+00:00"
+  },
+  {
+    "id": "b8ce046a-7d04-4496-b55d-76c88b896f08",
+    "name": "Expert",
+    "category": "Level",
+    "created_at": "2025-06-03T12:22:41.073544+00:00"
+  }
+]

@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowLeft, Trophy, AlertTriangle, Target, Lock,
   RefreshCw, Bookmark, Settings, ChevronDown, ChevronRight, Play, CheckCircle,
-  Monitor, ExternalLink, Timer, PowerOff, Check, RotateCcw
+  Monitor, ExternalLink, Timer, PowerOff, Check, RotateCcw,
+  ArrowRight, Shield, Sparkles, CheckCircle2, Flame, Unlock, Zap, Rocket, Clock, Lightning
 } from 'lucide-react';
 import { getChallenge, submitChallengeAnswer } from '../../lib/api';
 import { Challenge } from '../../lib/types';
@@ -417,33 +418,167 @@ const ChallengePage = () => {
   }
 
   if (id && !access.allow) {
+    const requiredPlan = access.required_plan?.toUpperCase() || 'HI-FI';
+    const hasOneTimePrice = access.individual_price !== null && access.individual_price !== undefined;
+    const price = access.individual_price ?? 0;
     return (
-      <div className="p-6 max-w-3xl mx-auto">
-        <button onClick={() => navigate(-1)} className="text-sm text-dim hover:text-white flex items-center gap-1 mb-6"><ArrowLeft size={14}/> Back</button>
-        <div className="border border-neutral-800 rounded-lg p-8 bg-neutral-900/60 backdrop-blur">
-          <div className="flex items-center gap-3 mb-4">
-            <Lock className="text-amber-400" size={28} />
-            <h1 className="text-2xl font-semibold tracking-wide">Challenge Locked</h1>
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-[#0B0613] via-[#140A22] to-[#1C0F32] py-10 px-4">
+        {/* Ambient gradient / glow layers */}
+        <div className="pointer-events-none absolute inset-0 opacity-[0.18]">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(255,0,92,0.25),transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(120,0,255,0.18),transparent_65%)] mix-blend-screen" />
+          <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.01)_40%,rgba(255,255,255,0.04)_100%)]" />
+        </div>
+
+        <div className="relative max-w-6xl mx-auto">
+          <button
+            onClick={() => navigate(-1)}
+            className="group inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mb-10"
+          >
+            <ArrowLeft size={16} className="group-hover:-translate-x-0.5 transition-transform" />
+            Back
+          </button>
+
+          <div className="grid lg:grid-cols-2 gap-10 items-stretch">
+            {/* LEFT: Lock / Upgrade Pane */}
+            <div className="relative rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/70 to-slate-800/60 backdrop-blur-xl p-10 overflow-hidden shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_8px_40px_-8px_rgba(0,0,0,0.6)]">
+              <div className="absolute -top-10 -right-10 w-48 h-48 bg-red-600/20 rounded-full blur-3xl" />
+              <div className="absolute -bottom-16 -left-8 w-64 h-64 bg-fuchsia-600/20 rounded-full blur-3xl" />
+
+              <div className="relative space-y-8">
+                <div className="flex items-center gap-5">
+                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-red-600 to-pink-600 flex items-center justify-center shadow-lg shadow-red-600/30 ring-2 ring-red-500/40">
+                    <Lock className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-red-100 to-fuchsia-200 bg-clip-text text-transparent">
+                      Challenge Locked
+                    </h1>
+                    <p className="text-sm text-gray-400 mt-1 max-w-sm">
+                      This premium scenario requires an upgraded subscription tier.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-5">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-red-600/20 text-red-300 border border-red-500/30">
+                      Required Plan · {requiredPlan}
+                    </span>
+                    {hasOneTimePrice && (
+                      <span className="px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/20 text-amber-300 border border-amber-400/30">
+                        Or One‑Time Access ₹{price}
+                      </span>
+                    )}
+                    {access.reason && (
+                      <span className="px-3 py-1 rounded-full text-xs bg-slate-700/40 text-slate-300 border border-slate-600/40">
+                        Code: {access.reason}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm leading-relaxed text-gray-300 max-w-xl">
+                    Upgrade to <span className="font-semibold text-white">{requiredPlan}</span> to unlock advanced chained attack paths,
+                    deeper post-compromise analytics, priority lab capacity, and weekly fresh challenge drops.
+                    Grow faster with realistic multi‑stage adversary simulation.
+                  </p>
+                </div>
+
+                {/* Feature Grid */}
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  {[
+                    { icon: Trophy, label: 'Full XP & Points' },
+                    { icon: Target, label: 'Advanced Scenarios' },
+                    { icon: Shield, label: 'Defense Mirrors' },
+                    { icon: Clock, label: 'Extended Lab Time' },
+                    { icon: Zap, label: 'Weekly Drops' },
+                    { icon: Rocket, label: 'Faster Progress' }
+                  ].map(b => (
+                    <div
+                      key={b.label}
+                      className="flex items-center gap-2 rounded-lg bg-slate-800/60 border border-slate-700/40 px-3 py-2 text-gray-300"
+                    >
+                      <b.icon className="h-4 w-4 text-red-400" />
+                      <span>{b.label}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* CTAs */}
+                <div className="space-y-4">
+                  <button
+                    onClick={() => navigate('/billing')}
+                    className="w-full group relative overflow-hidden rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-fuchsia-600 text-white font-semibold py-4 shadow-lg shadow-red-800/40 hover:shadow-red-600/50 transition-all"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      <Shield className="h-5 w-5" />
+                      Upgrade to {requiredPlan}
+                      <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.18),transparent_70%)]" />
+                  </button>
+
+                  {hasOneTimePrice && (
+                    <button
+                      disabled
+                      className="w-full rounded-xl border border-amber-400/40 bg-amber-500/10 text-amber-200 font-medium py-3 text-sm cursor-not-allowed"
+                      title="One-time purchase coming soon"
+                    >
+                      One‑Time Access ₹{price} (Coming Soon)
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => access.refresh(true)}
+                    className="w-full text-xs text-gray-400 hover:text-gray-200 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="h-3 w-3" /> Retry Access Check
+                  </button>
+                </div>
+
+                <div className="pt-2 border-t border-white/5 text-[11px] text-gray-500 tracking-wide">
+                  Cancel anytime. Upgrading instantly unlocks all current & upcoming premium challenges.
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT: Motivation / Preview */}
+            <div className="relative rounded-2xl border border-white/10 bg-gradient-to-b from-slate-900/60 to-slate-900/30 backdrop-blur-xl p-10 flex flex-col overflow-hidden">
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,0,92,0.08),transparent_55%)] pointer-events-none" />
+              <div className="flex-1 space-y-10">
+                <div className="space-y-5">
+                  <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-fuchsia-400" /> Why Upgrade?
+                  </h2>
+                  <ul className="space-y-3 text-sm text-gray-300">
+                    <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 text-green-400 shrink-0 mt-0.5" /> Unlock multi‑stage adversary simulation with realistic infrastructure.
+                    </li>
+                    <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 text-green-400 shrink-0 mt-0.5" /> Access deeper write‑ups & methodology insights post‑solve.
+                    </li>
+                    <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 text-green-400 shrink-0 mt-0.5" /> Earn higher XP multipliers & leaderboard impact.
+                    </li>
+                    <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 text-green-400 shrink-0 mt-0.5" /> Priority lab slots during global peak usage.
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="rounded-xl border border-slate-700/40 bg-slate-800/40 p-6">
+                  <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                    <Flame className="h-4 w-4 text-red-400" /> Sneak Preview
+                  </h3>
+                  <p className="text-xs text-gray-400 leading-relaxed">
+                    Premium chains blend misconfigurations, privilege escalation surfaces and adaptive defensive signals.
+                    Practice iterative hypothesis, not guess-and-check trivia.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-5 text-xs text-gray-500">
+                  <div className="flex items-center gap-1"><Unlock className="h-3.5 w-3.5 text-red-400" /> Instant Unlock</div>
+                  <div className="flex items-center gap-1"><Zap className="h-3.5 w-3.5 text-fuchsia-400" /> Weekly Drops</div>
+                  <div className="flex items-center gap-1"><Rocket className="h-3.5 w-3.5 text-pink-400" /> Faster Growth</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <p className="text-sm text-neutral-300 mb-4">
-            This challenge is gated. {access.required_plan ? (
-              <>It requires the <span className="font-semibold text-white">{access.required_plan.toUpperCase()}</span> plan.</>
-            ) : access.individual_price !== null ? (
-              <>Purchase access (individual price: <span className="font-mono">{access.individual_price}</span> units) to unlock.</>
-            ) : (
-              <>Upgrade your plan or purchase access to continue.</>
-            )}
-          </p>
-          <div className="flex flex-wrap gap-3">
-            {access.required_plan && (
-              <a href="/billing" className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-sm font-medium rounded transition">Upgrade Plan</a>
-            )}
-            {access.individual_price !== null && (
-              <a href={`/store/challenge/${id}`} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-sm font-medium rounded transition">Buy Access</a>
-            )}
-            <button onClick={() => access.refresh(true)} className="px-3 py-2 text-xs border border-neutral-700 rounded hover:border-neutral-500">Retry Check</button>
-          </div>
-          {access.reason && <div className="mt-4 text-xs text-neutral-500">Reason: {access.reason}</div>}
         </div>
       </div>
     );
