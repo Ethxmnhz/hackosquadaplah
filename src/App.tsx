@@ -48,15 +48,18 @@ const CertificationsManagement = lazy(() => import('./pages/admin/Certifications
 const CreateCertificationPage = lazy(() => import('./pages/admin/CreateCertificationPage'));
 const EditCertificationPage = lazy(() => import('./pages/admin/EditCertificationPage'));
 const LabOperation = lazy(() => import('./pages/admin/LabOperation'));
-const RedVsBlueSessionsAdminPage = lazy(() => import('./pages/admin/RedVsBlueSessionsAdminPage'));
+const RedVsBlueSessionsAdminPage = lazy(() => import('./pages/admn/RedVsBlueSessionsAdminPage
+  '));
 const AdminDashboardPage = lazy(() => import('./pages/admin-dashboard/AdminDashboardPage'));
 const OnchainTestPage = lazy(() => import('./pages/onchain/OnchainTestPage'));
-const ClaimCertificatePage = lazy(() => import('./pages/certs/ClaimCertificate'));
+const ClaimCertificatePage = lazy(() => import('./pages/certs/ClaimCerificate'));
 const MyCertificatesPage = lazy(() => import('./pages/certs/MyCertificates'));
-const VerifierPage = lazy(() => import('./pages/certs/Verifier'));
+const VerifierPage = lazy(() => import('./pages/certs/Verifier
+  '));
 
 // Leaderboard Page (lazy)
-const LeaderboardPage = lazy(() => import('./pages/leaderboard/LeaderboardPage'));
+const LeaderboardPage = lazy(() => import('./pages/leaderboard
+  /LeaderboardPage'));
 
 // Profile Page (lazy)
 const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
